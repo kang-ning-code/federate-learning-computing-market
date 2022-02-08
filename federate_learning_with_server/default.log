@@ -1,0 +1,243 @@
+[INFO ]2022-02-08 23:25:36 - root   - simulator.py - 64   line : use cuda as device
+[INFO ]2022-02-08 23:25:36 - root   - dataset_helper.py - 170  line : extracting .\data\MNIST\train-images-idx3-ubyte.gz
+[INFO ]2022-02-08 23:25:37 - root   - dataset_helper.py - 44   line : load train_x,shape:(60000, 28, 28, 1)
+[INFO ]2022-02-08 23:25:37 - root   - dataset_helper.py - 197  line : extracting .\data\MNIST\train-labels-idx1-ubyte.gz
+[INFO ]2022-02-08 23:25:37 - root   - dataset_helper.py - 46   line : load train_y,shape:(60000, 10)
+[INFO ]2022-02-08 23:25:37 - root   - dataset_helper.py - 170  line : extracting .\data\MNIST\t10k-images-idx3-ubyte.gz
+[INFO ]2022-02-08 23:25:37 - root   - dataset_helper.py - 48   line : load test_x,shape:(10000, 28, 28, 1)
+[INFO ]2022-02-08 23:25:37 - root   - dataset_helper.py - 197  line : extracting .\data\MNIST\t10k-labels-idx1-ubyte.gz
+[INFO ]2022-02-08 23:25:37 - root   - dataset_helper.py - 50   line : load test_y,shape:(10000, 10)
+[DEBUG]2022-02-08 23:25:37 - root   - dataset_helper.py - 58   line : after reshape,train_x's shape:(60000, 784),test_x's shape(10000, 784)
+[DEBUG]2022-02-08 23:25:37 - root   - clients.py - 71   line : shards_id's shape:(2000,),shard_size is 30
+[INFO ]2022-02-08 23:25:37 - root   - simulator.py - 92   line : ---finish prepare work---
+[DEBUG]2022-02-08 23:25:37 - root   - simulator.py - 97   line : tensor shape:torch.Size([32, 1, 5, 5]),size:torch.Size([32, 1, 5, 5])
+[DEBUG]2022-02-08 23:25:39 - root   - simulator.py - 97   line : tensor shape:torch.Size([32]),size:torch.Size([32])
+[DEBUG]2022-02-08 23:25:39 - root   - simulator.py - 97   line : tensor shape:torch.Size([64, 32, 5, 5]),size:torch.Size([64, 32, 5, 5])
+[DEBUG]2022-02-08 23:25:39 - root   - simulator.py - 97   line : tensor shape:torch.Size([64]),size:torch.Size([64])
+[DEBUG]2022-02-08 23:25:39 - root   - simulator.py - 97   line : tensor shape:torch.Size([512, 3136]),size:torch.Size([512, 3136])
+[DEBUG]2022-02-08 23:25:39 - root   - simulator.py - 97   line : tensor shape:torch.Size([512]),size:torch.Size([512])
+[DEBUG]2022-02-08 23:25:39 - root   - simulator.py - 97   line : tensor shape:torch.Size([10, 512]),size:torch.Size([10, 512])
+[DEBUG]2022-02-08 23:25:39 - root   - simulator.py - 97   line : tensor shape:torch.Size([10]),size:torch.Size([10])
+[INFO ]2022-02-08 23:25:39 - root   - simulator.py - 102  line : ---communicate round 1 start---
+[INFO ]2022-02-08 23:25:49 - root   - simulator.py - 133  line : accuracy: 0.10089998692274094
+[INFO ]2022-02-08 23:25:49 - root   - simulator.py - 102  line : ---communicate round 2 start---
+[INFO ]2022-02-08 23:25:58 - root   - simulator.py - 133  line : accuracy: 0.49029991030693054
+[INFO ]2022-02-08 23:25:58 - root   - simulator.py - 102  line : ---communicate round 3 start---
+[INFO ]2022-02-08 23:26:07 - root   - simulator.py - 133  line : accuracy: 0.7046998143196106
+[INFO ]2022-02-08 23:26:07 - root   - simulator.py - 102  line : ---communicate round 4 start---
+[INFO ]2022-02-08 23:26:16 - root   - simulator.py - 133  line : accuracy: 0.7172998785972595
+[INFO ]2022-02-08 23:26:16 - root   - simulator.py - 102  line : ---communicate round 5 start---
+[INFO ]2022-02-08 23:26:26 - root   - simulator.py - 133  line : accuracy: 0.7563997507095337
+[INFO ]2022-02-08 23:26:26 - root   - simulator.py - 102  line : ---communicate round 6 start---
+[INFO ]2022-02-08 23:26:35 - root   - simulator.py - 133  line : accuracy: 0.8059000372886658
+[INFO ]2022-02-08 23:26:35 - root   - simulator.py - 102  line : ---communicate round 7 start---
+[INFO ]2022-02-08 23:26:44 - root   - simulator.py - 133  line : accuracy: 0.8619998693466187
+[INFO ]2022-02-08 23:26:44 - root   - simulator.py - 102  line : ---communicate round 8 start---
+[INFO ]2022-02-08 23:26:53 - root   - simulator.py - 133  line : accuracy: 0.84639972448349
+[INFO ]2022-02-08 23:26:53 - root   - simulator.py - 102  line : ---communicate round 9 start---
+[INFO ]2022-02-08 23:27:03 - root   - simulator.py - 133  line : accuracy: 0.8485001921653748
+[INFO ]2022-02-08 23:27:03 - root   - simulator.py - 102  line : ---communicate round 10 start---
+[INFO ]2022-02-08 23:27:12 - root   - simulator.py - 133  line : accuracy: 0.9211999177932739
+[INFO ]2022-02-08 23:27:12 - root   - simulator.py - 102  line : ---communicate round 11 start---
+[INFO ]2022-02-08 23:27:21 - root   - simulator.py - 133  line : accuracy: 0.9409001469612122
+[INFO ]2022-02-08 23:27:21 - root   - simulator.py - 102  line : ---communicate round 12 start---
+[INFO ]2022-02-08 23:27:30 - root   - simulator.py - 133  line : accuracy: 0.9408997893333435
+[INFO ]2022-02-08 23:27:30 - root   - simulator.py - 102  line : ---communicate round 13 start---
+[INFO ]2022-02-08 23:27:40 - root   - simulator.py - 133  line : accuracy: 0.9402003288269043
+[INFO ]2022-02-08 23:27:40 - root   - simulator.py - 102  line : ---communicate round 14 start---
+[INFO ]2022-02-08 23:27:50 - root   - simulator.py - 133  line : accuracy: 0.9431997537612915
+[INFO ]2022-02-08 23:27:50 - root   - simulator.py - 102  line : ---communicate round 15 start---
+[INFO ]2022-02-08 23:28:00 - root   - simulator.py - 133  line : accuracy: 0.9437998533248901
+[INFO ]2022-02-08 23:28:00 - root   - simulator.py - 102  line : ---communicate round 16 start---
+[INFO ]2022-02-08 23:28:09 - root   - simulator.py - 133  line : accuracy: 0.9606997966766357
+[INFO ]2022-02-08 23:28:09 - root   - simulator.py - 102  line : ---communicate round 17 start---
+[INFO ]2022-02-08 23:28:19 - root   - simulator.py - 133  line : accuracy: 0.9480001330375671
+[INFO ]2022-02-08 23:28:19 - root   - simulator.py - 102  line : ---communicate round 18 start---
+[INFO ]2022-02-08 23:28:28 - root   - simulator.py - 133  line : accuracy: 0.9569999575614929
+[INFO ]2022-02-08 23:28:28 - root   - simulator.py - 102  line : ---communicate round 19 start---
+[INFO ]2022-02-08 23:28:37 - root   - simulator.py - 133  line : accuracy: 0.9632998704910278
+[INFO ]2022-02-08 23:28:37 - root   - simulator.py - 102  line : ---communicate round 20 start---
+[INFO ]2022-02-08 23:28:46 - root   - simulator.py - 133  line : accuracy: 0.9676997661590576
+[INFO ]2022-02-08 23:28:47 - root   - simulator.py - 102  line : ---communicate round 21 start---
+[INFO ]2022-02-08 23:28:56 - root   - simulator.py - 133  line : accuracy: 0.9693001508712769
+[INFO ]2022-02-08 23:28:56 - root   - simulator.py - 102  line : ---communicate round 22 start---
+[INFO ]2022-02-08 23:29:05 - root   - simulator.py - 133  line : accuracy: 0.970300018787384
+[INFO ]2022-02-08 23:29:05 - root   - simulator.py - 102  line : ---communicate round 23 start---
+[INFO ]2022-02-08 23:29:15 - root   - simulator.py - 133  line : accuracy: 0.9690000414848328
+[INFO ]2022-02-08 23:29:15 - root   - simulator.py - 102  line : ---communicate round 24 start---
+[INFO ]2022-02-08 23:29:24 - root   - simulator.py - 133  line : accuracy: 0.9697001576423645
+[INFO ]2022-02-08 23:29:24 - root   - simulator.py - 102  line : ---communicate round 25 start---
+[INFO ]2022-02-08 23:29:33 - root   - simulator.py - 133  line : accuracy: 0.9680999517440796
+[INFO ]2022-02-08 23:29:33 - root   - simulator.py - 102  line : ---communicate round 26 start---
+[INFO ]2022-02-08 23:29:43 - root   - simulator.py - 133  line : accuracy: 0.971700131893158
+[INFO ]2022-02-08 23:29:43 - root   - simulator.py - 102  line : ---communicate round 27 start---
+[INFO ]2022-02-08 23:29:52 - root   - simulator.py - 133  line : accuracy: 0.972399890422821
+[INFO ]2022-02-08 23:29:52 - root   - simulator.py - 102  line : ---communicate round 28 start---
+[INFO ]2022-02-08 23:30:01 - root   - simulator.py - 133  line : accuracy: 0.971700131893158
+[INFO ]2022-02-08 23:30:01 - root   - simulator.py - 102  line : ---communicate round 29 start---
+[INFO ]2022-02-08 23:30:11 - root   - simulator.py - 133  line : accuracy: 0.9690999984741211
+[INFO ]2022-02-08 23:30:11 - root   - simulator.py - 102  line : ---communicate round 30 start---
+[INFO ]2022-02-08 23:30:20 - root   - simulator.py - 133  line : accuracy: 0.9741001129150391
+[INFO ]2022-02-08 23:30:20 - root   - simulator.py - 102  line : ---communicate round 31 start---
+[INFO ]2022-02-08 23:30:29 - root   - simulator.py - 133  line : accuracy: 0.9759001731872559
+[INFO ]2022-02-08 23:30:29 - root   - simulator.py - 102  line : ---communicate round 32 start---
+[INFO ]2022-02-08 23:30:38 - root   - simulator.py - 133  line : accuracy: 0.9762001633644104
+[INFO ]2022-02-08 23:30:38 - root   - simulator.py - 102  line : ---communicate round 33 start---
+[INFO ]2022-02-08 23:30:47 - root   - simulator.py - 133  line : accuracy: 0.9767001271247864
+[INFO ]2022-02-08 23:30:47 - root   - simulator.py - 102  line : ---communicate round 34 start---
+[INFO ]2022-02-08 23:30:56 - root   - simulator.py - 133  line : accuracy: 0.9747000932693481
+[INFO ]2022-02-08 23:30:56 - root   - simulator.py - 102  line : ---communicate round 35 start---
+[INFO ]2022-02-08 23:31:05 - root   - simulator.py - 133  line : accuracy: 0.9770001769065857
+[INFO ]2022-02-08 23:31:05 - root   - simulator.py - 102  line : ---communicate round 36 start---
+[INFO ]2022-02-08 23:31:14 - root   - simulator.py - 133  line : accuracy: 0.9763001799583435
+[INFO ]2022-02-08 23:31:14 - root   - simulator.py - 102  line : ---communicate round 37 start---
+[INFO ]2022-02-08 23:31:23 - root   - simulator.py - 133  line : accuracy: 0.9766002297401428
+[INFO ]2022-02-08 23:31:23 - root   - simulator.py - 102  line : ---communicate round 38 start---
+[INFO ]2022-02-08 23:31:33 - root   - simulator.py - 133  line : accuracy: 0.9772999882698059
+[INFO ]2022-02-08 23:31:33 - root   - simulator.py - 102  line : ---communicate round 39 start---
+[INFO ]2022-02-08 23:31:42 - root   - simulator.py - 133  line : accuracy: 0.9781001806259155
+[INFO ]2022-02-08 23:31:42 - root   - simulator.py - 102  line : ---communicate round 40 start---
+[INFO ]2022-02-08 23:31:51 - root   - simulator.py - 133  line : accuracy: 0.9776999354362488
+[INFO ]2022-02-08 23:31:51 - root   - simulator.py - 102  line : ---communicate round 41 start---
+[INFO ]2022-02-08 23:32:00 - root   - simulator.py - 133  line : accuracy: 0.977699875831604
+[INFO ]2022-02-08 23:32:00 - root   - simulator.py - 102  line : ---communicate round 42 start---
+[INFO ]2022-02-08 23:32:09 - root   - simulator.py - 133  line : accuracy: 0.979100227355957
+[INFO ]2022-02-08 23:32:09 - root   - simulator.py - 102  line : ---communicate round 43 start---
+[INFO ]2022-02-08 23:32:18 - root   - simulator.py - 133  line : accuracy: 0.9786000847816467
+[INFO ]2022-02-08 23:32:18 - root   - simulator.py - 102  line : ---communicate round 44 start---
+[INFO ]2022-02-08 23:32:27 - root   - simulator.py - 133  line : accuracy: 0.9796001315116882
+[INFO ]2022-02-08 23:32:27 - root   - simulator.py - 102  line : ---communicate round 45 start---
+[INFO ]2022-02-08 23:32:36 - root   - simulator.py - 133  line : accuracy: 0.9803001880645752
+[INFO ]2022-02-08 23:32:36 - root   - simulator.py - 102  line : ---communicate round 46 start---
+[INFO ]2022-02-08 23:32:45 - root   - simulator.py - 133  line : accuracy: 0.9796000719070435
+[INFO ]2022-02-08 23:32:45 - root   - simulator.py - 102  line : ---communicate round 47 start---
+[INFO ]2022-02-08 23:32:54 - root   - simulator.py - 133  line : accuracy: 0.9807000756263733
+[INFO ]2022-02-08 23:32:54 - root   - simulator.py - 102  line : ---communicate round 48 start---
+[INFO ]2022-02-08 23:33:03 - root   - simulator.py - 133  line : accuracy: 0.9796000719070435
+[INFO ]2022-02-08 23:33:03 - root   - simulator.py - 102  line : ---communicate round 49 start---
+[INFO ]2022-02-08 23:33:12 - root   - simulator.py - 133  line : accuracy: 0.9814001321792603
+[INFO ]2022-02-08 23:33:12 - root   - simulator.py - 102  line : ---communicate round 50 start---
+[INFO ]2022-02-08 23:33:21 - root   - simulator.py - 133  line : accuracy: 0.9811999797821045
+[INFO ]2022-02-08 23:33:21 - root   - simulator.py - 102  line : ---communicate round 51 start---
+[INFO ]2022-02-08 23:33:31 - root   - simulator.py - 133  line : accuracy: 0.98089998960495
+[INFO ]2022-02-08 23:33:31 - root   - simulator.py - 102  line : ---communicate round 52 start---
+[INFO ]2022-02-08 23:33:40 - root   - simulator.py - 133  line : accuracy: 0.9798001050949097
+[INFO ]2022-02-08 23:33:40 - root   - simulator.py - 102  line : ---communicate round 53 start---
+[INFO ]2022-02-08 23:33:49 - root   - simulator.py - 133  line : accuracy: 0.9808998107910156
+[INFO ]2022-02-08 23:33:49 - root   - simulator.py - 102  line : ---communicate round 54 start---
+[INFO ]2022-02-08 23:33:58 - root   - simulator.py - 133  line : accuracy: 0.9823001623153687
+[INFO ]2022-02-08 23:33:58 - root   - simulator.py - 102  line : ---communicate round 55 start---
+[INFO ]2022-02-08 23:34:08 - root   - simulator.py - 133  line : accuracy: 0.9821001887321472
+[INFO ]2022-02-08 23:34:08 - root   - simulator.py - 102  line : ---communicate round 56 start---
+[INFO ]2022-02-08 23:34:17 - root   - simulator.py - 133  line : accuracy: 0.9810998439788818
+[INFO ]2022-02-08 23:34:17 - root   - simulator.py - 102  line : ---communicate round 57 start---
+[INFO ]2022-02-08 23:34:26 - root   - simulator.py - 133  line : accuracy: 0.982900083065033
+[INFO ]2022-02-08 23:34:26 - root   - simulator.py - 102  line : ---communicate round 58 start---
+[INFO ]2022-02-08 23:34:35 - root   - simulator.py - 133  line : accuracy: 0.9821999669075012
+[INFO ]2022-02-08 23:34:35 - root   - simulator.py - 102  line : ---communicate round 59 start---
+[INFO ]2022-02-08 23:34:44 - root   - simulator.py - 133  line : accuracy: 0.9820000529289246
+[INFO ]2022-02-08 23:34:44 - root   - simulator.py - 102  line : ---communicate round 60 start---
+[INFO ]2022-02-08 23:34:53 - root   - simulator.py - 133  line : accuracy: 0.9827999472618103
+[INFO ]2022-02-08 23:34:53 - root   - simulator.py - 102  line : ---communicate round 61 start---
+[INFO ]2022-02-08 23:35:02 - root   - simulator.py - 133  line : accuracy: 0.9823001027107239
+[INFO ]2022-02-08 23:35:02 - root   - simulator.py - 102  line : ---communicate round 62 start---
+[INFO ]2022-02-08 23:35:12 - root   - simulator.py - 133  line : accuracy: 0.9799001216888428
+[INFO ]2022-02-08 23:35:12 - root   - simulator.py - 102  line : ---communicate round 63 start---
+[INFO ]2022-02-08 23:35:21 - root   - simulator.py - 133  line : accuracy: 0.9834998846054077
+[INFO ]2022-02-08 23:35:21 - root   - simulator.py - 102  line : ---communicate round 64 start---
+[INFO ]2022-02-08 23:35:30 - root   - simulator.py - 133  line : accuracy: 0.9830999374389648
+[INFO ]2022-02-08 23:35:30 - root   - simulator.py - 102  line : ---communicate round 65 start---
+[INFO ]2022-02-08 23:35:39 - root   - simulator.py - 133  line : accuracy: 0.9823001027107239
+[INFO ]2022-02-08 23:35:39 - root   - simulator.py - 102  line : ---communicate round 66 start---
+[INFO ]2022-02-08 23:35:48 - root   - simulator.py - 133  line : accuracy: 0.9827999472618103
+[INFO ]2022-02-08 23:35:48 - root   - simulator.py - 102  line : ---communicate round 67 start---
+[INFO ]2022-02-08 23:35:57 - root   - simulator.py - 133  line : accuracy: 0.982400119304657
+[INFO ]2022-02-08 23:35:57 - root   - simulator.py - 102  line : ---communicate round 68 start---
+[INFO ]2022-02-08 23:36:06 - root   - simulator.py - 133  line : accuracy: 0.9836999773979187
+[INFO ]2022-02-08 23:36:06 - root   - simulator.py - 102  line : ---communicate round 69 start---
+[INFO ]2022-02-08 23:36:15 - root   - simulator.py - 133  line : accuracy: 0.9829002022743225
+[INFO ]2022-02-08 23:36:15 - root   - simulator.py - 102  line : ---communicate round 70 start---
+[INFO ]2022-02-08 23:36:24 - root   - simulator.py - 133  line : accuracy: 0.983299970626831
+[INFO ]2022-02-08 23:36:24 - root   - simulator.py - 102  line : ---communicate round 71 start---
+[INFO ]2022-02-08 23:36:33 - root   - simulator.py - 133  line : accuracy: 0.983199954032898
+[INFO ]2022-02-08 23:36:33 - root   - simulator.py - 102  line : ---communicate round 72 start---
+[INFO ]2022-02-08 23:36:42 - root   - simulator.py - 133  line : accuracy: 0.9843000769615173
+[INFO ]2022-02-08 23:36:42 - root   - simulator.py - 102  line : ---communicate round 73 start---
+[INFO ]2022-02-08 23:36:51 - root   - simulator.py - 133  line : accuracy: 0.984700083732605
+[INFO ]2022-02-08 23:36:51 - root   - simulator.py - 102  line : ---communicate round 74 start---
+[INFO ]2022-02-08 23:37:01 - root   - simulator.py - 133  line : accuracy: 0.9833002090454102
+[INFO ]2022-02-08 23:37:01 - root   - simulator.py - 102  line : ---communicate round 75 start---
+[INFO ]2022-02-08 23:37:11 - root   - simulator.py - 133  line : accuracy: 0.983500063419342
+[INFO ]2022-02-08 23:37:11 - root   - simulator.py - 102  line : ---communicate round 76 start---
+[INFO ]2022-02-08 23:37:20 - root   - simulator.py - 133  line : accuracy: 0.9832001328468323
+[INFO ]2022-02-08 23:37:20 - root   - simulator.py - 102  line : ---communicate round 77 start---
+[INFO ]2022-02-08 23:37:29 - root   - simulator.py - 133  line : accuracy: 0.9831000566482544
+[INFO ]2022-02-08 23:37:29 - root   - simulator.py - 102  line : ---communicate round 78 start---
+[INFO ]2022-02-08 23:37:38 - root   - simulator.py - 133  line : accuracy: 0.9838998913764954
+[INFO ]2022-02-08 23:37:38 - root   - simulator.py - 102  line : ---communicate round 79 start---
+[INFO ]2022-02-08 23:37:47 - root   - simulator.py - 133  line : accuracy: 0.984700083732605
+[INFO ]2022-02-08 23:37:47 - root   - simulator.py - 102  line : ---communicate round 80 start---
+[INFO ]2022-02-08 23:37:56 - root   - simulator.py - 133  line : accuracy: 0.9848001003265381
+[INFO ]2022-02-08 23:37:56 - root   - simulator.py - 102  line : ---communicate round 81 start---
+[INFO ]2022-02-08 23:38:05 - root   - simulator.py - 133  line : accuracy: 0.9845000505447388
+[INFO ]2022-02-08 23:38:05 - root   - simulator.py - 102  line : ---communicate round 82 start---
+[INFO ]2022-02-08 23:38:14 - root   - simulator.py - 133  line : accuracy: 0.9849001169204712
+[INFO ]2022-02-08 23:38:14 - root   - simulator.py - 102  line : ---communicate round 83 start---
+[INFO ]2022-02-08 23:38:23 - root   - simulator.py - 133  line : accuracy: 0.9841999411582947
+[INFO ]2022-02-08 23:38:23 - root   - simulator.py - 102  line : ---communicate round 84 start---
+[INFO ]2022-02-08 23:38:32 - root   - simulator.py - 133  line : accuracy: 0.9845000505447388
+[INFO ]2022-02-08 23:38:32 - root   - simulator.py - 102  line : ---communicate round 85 start---
+[INFO ]2022-02-08 23:38:41 - root   - simulator.py - 133  line : accuracy: 0.9853999614715576
+[INFO ]2022-02-08 23:38:41 - root   - simulator.py - 102  line : ---communicate round 86 start---
+[INFO ]2022-02-08 23:38:50 - root   - simulator.py - 133  line : accuracy: 0.9846000671386719
+[INFO ]2022-02-08 23:38:50 - root   - simulator.py - 102  line : ---communicate round 87 start---
+[INFO ]2022-02-08 23:38:59 - root   - simulator.py - 133  line : accuracy: 0.9844000935554504
+[INFO ]2022-02-08 23:38:59 - root   - simulator.py - 102  line : ---communicate round 88 start---
+[INFO ]2022-02-08 23:39:09 - root   - simulator.py - 133  line : accuracy: 0.9840000867843628
+[INFO ]2022-02-08 23:39:09 - root   - simulator.py - 102  line : ---communicate round 89 start---
+[INFO ]2022-02-08 23:39:18 - root   - simulator.py - 133  line : accuracy: 0.9848000407218933
+[INFO ]2022-02-08 23:39:18 - root   - simulator.py - 102  line : ---communicate round 90 start---
+[INFO ]2022-02-08 23:39:27 - root   - simulator.py - 133  line : accuracy: 0.9838998913764954
+[INFO ]2022-02-08 23:39:27 - root   - simulator.py - 102  line : ---communicate round 91 start---
+[INFO ]2022-02-08 23:39:36 - root   - simulator.py - 133  line : accuracy: 0.9846000671386719
+[INFO ]2022-02-08 23:39:36 - root   - simulator.py - 102  line : ---communicate round 92 start---
+[INFO ]2022-02-08 23:39:45 - root   - simulator.py - 133  line : accuracy: 0.9843000769615173
+[INFO ]2022-02-08 23:39:45 - root   - simulator.py - 102  line : ---communicate round 93 start---
+[INFO ]2022-02-08 23:39:54 - root   - simulator.py - 133  line : accuracy: 0.9851000905036926
+[INFO ]2022-02-08 23:39:54 - root   - simulator.py - 102  line : ---communicate round 94 start---
+[INFO ]2022-02-08 23:40:03 - root   - simulator.py - 133  line : accuracy: 0.9840000867843628
+[INFO ]2022-02-08 23:40:03 - root   - simulator.py - 102  line : ---communicate round 95 start---
+[INFO ]2022-02-08 23:40:12 - root   - simulator.py - 133  line : accuracy: 0.985499918460846
+[INFO ]2022-02-08 23:40:12 - root   - simulator.py - 102  line : ---communicate round 96 start---
+[INFO ]2022-02-08 23:40:21 - root   - simulator.py - 133  line : accuracy: 0.9850999712944031
+[INFO ]2022-02-08 23:40:21 - root   - simulator.py - 102  line : ---communicate round 97 start---
+[INFO ]2022-02-08 23:40:30 - root   - simulator.py - 133  line : accuracy: 0.9850999712944031
+[INFO ]2022-02-08 23:40:30 - root   - simulator.py - 102  line : ---communicate round 98 start---
+[INFO ]2022-02-08 23:40:39 - root   - simulator.py - 133  line : accuracy: 0.9860999584197998
+[INFO ]2022-02-08 23:40:39 - root   - simulator.py - 102  line : ---communicate round 99 start---
+[INFO ]2022-02-08 23:40:48 - root   - simulator.py - 133  line : accuracy: 0.9859001040458679
+[INFO ]2022-02-08 23:40:48 - root   - simulator.py - 102  line : ---communicate round 100 start---
+[INFO ]2022-02-08 23:40:57 - root   - simulator.py - 133  line : accuracy: 0.9853999614715576
+[INFO ]2022-02-08 23:40:57 - root   - simulator.py - 102  line : ---communicate round 101 start---
+[INFO ]2022-02-08 23:41:07 - root   - simulator.py - 133  line : accuracy: 0.9852001070976257
+[INFO ]2022-02-08 23:41:07 - root   - simulator.py - 102  line : ---communicate round 102 start---
+[INFO ]2022-02-08 23:41:16 - root   - simulator.py - 133  line : accuracy: 0.9857000708580017
+[INFO ]2022-02-08 23:41:16 - root   - simulator.py - 102  line : ---communicate round 103 start---
+[INFO ]2022-02-08 23:41:25 - root   - simulator.py - 133  line : accuracy: 0.9851000905036926
+[INFO ]2022-02-08 23:41:25 - root   - simulator.py - 102  line : ---communicate round 104 start---
+[INFO ]2022-02-08 23:41:34 - root   - simulator.py - 133  line : accuracy: 0.9850998520851135
+[INFO ]2022-02-08 23:41:34 - root   - simulator.py - 102  line : ---communicate round 105 start---
+[INFO ]2022-02-08 23:41:43 - root   - simulator.py - 133  line : accuracy: 0.9849998950958252
+[INFO ]2022-02-08 23:41:43 - root   - simulator.py - 102  line : ---communicate round 106 start---
+[INFO ]2022-02-08 23:41:53 - root   - simulator.py - 133  line : accuracy: 0.9843001961708069
+[INFO ]2022-02-08 23:41:53 - root   - simulator.py - 102  line : ---communicate round 107 start---
+[INFO ]2022-02-08 23:42:02 - root   - simulator.py - 133  line : accuracy: 0.9844999313354492
+[INFO ]2022-02-08 23:42:02 - root   - simulator.py - 102  line : ---communicate round 108 start---
+[INFO ]2022-02-08 23:42:12 - root   - simulator.py - 133  line : accuracy: 0.9848000407218933
+[INFO ]2022-02-08 23:42:12 - root   - simulator.py - 102  line : ---communicate round 109 start---
+[INFO ]2022-02-08 23:42:21 - root   - simulator.py - 133  line : accuracy: 0.9846998453140259
+[INFO ]2022-02-08 23:42:21 - root   - simulator.py - 102  line : ---communicate round 110 start---
+[INFO ]2022-02-08 23:42:30 - root   - simulator.py - 133  line : accuracy: 0.9846999645233154
+[INFO ]2022-02-08 23:42:30 - root   - simulator.py - 102  line : ---communicate round 111 start---
+[INFO ]2022-02-08 23:42:40 - root   - simulator.py - 133  line : accuracy: 0.9849998950958252
+[INFO ]2022-02-08 23:42:40 - root   - simulator.py - 102  line : ---communicate round 112 start---

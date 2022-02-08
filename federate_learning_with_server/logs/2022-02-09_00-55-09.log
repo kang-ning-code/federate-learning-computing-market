@@ -1,0 +1,225 @@
+[INFO ]2022-02-09 00:55:10-my_logger-simulator.py-69   line : use cuda as device
+[INFO ]2022-02-09 00:55:10-my_logger-dataset_helper.py-170  line : extracting .\data\MNIST\train-images-idx3-ubyte.gz
+[INFO ]2022-02-09 00:55:11-my_logger-dataset_helper.py-44   line : load train_x,shape:(60000, 28, 28, 1)
+[INFO ]2022-02-09 00:55:11-my_logger-dataset_helper.py-197  line : extracting .\data\MNIST\train-labels-idx1-ubyte.gz
+[INFO ]2022-02-09 00:55:11-my_logger-dataset_helper.py-46   line : load train_y,shape:(60000, 10)
+[INFO ]2022-02-09 00:55:11-my_logger-dataset_helper.py-170  line : extracting .\data\MNIST\t10k-images-idx3-ubyte.gz
+[INFO ]2022-02-09 00:55:11-my_logger-dataset_helper.py-48   line : load test_x,shape:(10000, 28, 28, 1)
+[INFO ]2022-02-09 00:55:11-my_logger-dataset_helper.py-197  line : extracting .\data\MNIST\t10k-labels-idx1-ubyte.gz
+[INFO ]2022-02-09 00:55:11-my_logger-dataset_helper.py-50   line : load test_y,shape:(10000, 10)
+[DEBUG]2022-02-09 00:55:11-my_logger-dataset_helper.py-58   line : after reshape,train_x's shape:(60000, 784),test_x's shape(10000, 784)
+[DEBUG]2022-02-09 00:55:11-my_logger-clients.py-71   line : shards_id's shape:(2000,),shard_size is 30
+[INFO ]2022-02-09 00:55:11-my_logger-simulator.py-97   line : ---finish prepare work---
+[DEBUG]2022-02-09 00:55:11-my_logger-simulator.py-102  line : tensor shape:torch.Size([32, 1, 5, 5]),size:torch.Size([32, 1, 5, 5])
+[DEBUG]2022-02-09 00:55:13-my_logger-simulator.py-102  line : tensor shape:torch.Size([32]),size:torch.Size([32])
+[DEBUG]2022-02-09 00:55:13-my_logger-simulator.py-102  line : tensor shape:torch.Size([64, 32, 5, 5]),size:torch.Size([64, 32, 5, 5])
+[DEBUG]2022-02-09 00:55:13-my_logger-simulator.py-102  line : tensor shape:torch.Size([64]),size:torch.Size([64])
+[DEBUG]2022-02-09 00:55:13-my_logger-simulator.py-102  line : tensor shape:torch.Size([512, 3136]),size:torch.Size([512, 3136])
+[DEBUG]2022-02-09 00:55:13-my_logger-simulator.py-102  line : tensor shape:torch.Size([512]),size:torch.Size([512])
+[DEBUG]2022-02-09 00:55:13-my_logger-simulator.py-102  line : tensor shape:torch.Size([10, 512]),size:torch.Size([10, 512])
+[DEBUG]2022-02-09 00:55:13-my_logger-simulator.py-102  line : tensor shape:torch.Size([10]),size:torch.Size([10])
+[INFO ]2022-02-09 00:55:13-my_logger-simulator.py-107  line : ---communicate round 1 start---
+[INFO ]2022-02-09 00:55:23-my_logger-simulator.py-138  line : accuracy: 0.12409999221563339
+[INFO ]2022-02-09 00:55:23-my_logger-simulator.py-107  line : ---communicate round 2 start---
+[INFO ]2022-02-09 00:55:32-my_logger-simulator.py-138  line : accuracy: 0.43039995431900024
+[INFO ]2022-02-09 00:55:32-my_logger-simulator.py-107  line : ---communicate round 3 start---
+[INFO ]2022-02-09 00:55:41-my_logger-simulator.py-138  line : accuracy: 0.5760999321937561
+[INFO ]2022-02-09 00:55:41-my_logger-simulator.py-107  line : ---communicate round 4 start---
+[INFO ]2022-02-09 00:55:50-my_logger-simulator.py-138  line : accuracy: 0.7032001614570618
+[INFO ]2022-02-09 00:55:50-my_logger-simulator.py-107  line : ---communicate round 5 start---
+[INFO ]2022-02-09 00:55:59-my_logger-simulator.py-138  line : accuracy: 0.7946999073028564
+[INFO ]2022-02-09 00:55:59-my_logger-simulator.py-107  line : ---communicate round 6 start---
+[INFO ]2022-02-09 00:56:08-my_logger-simulator.py-138  line : accuracy: 0.7203999757766724
+[INFO ]2022-02-09 00:56:08-my_logger-simulator.py-107  line : ---communicate round 7 start---
+[INFO ]2022-02-09 00:56:17-my_logger-simulator.py-138  line : accuracy: 0.8075998425483704
+[INFO ]2022-02-09 00:56:17-my_logger-simulator.py-107  line : ---communicate round 8 start---
+[INFO ]2022-02-09 00:56:27-my_logger-simulator.py-138  line : accuracy: 0.9122998714447021
+[INFO ]2022-02-09 00:56:27-my_logger-simulator.py-107  line : ---communicate round 9 start---
+[INFO ]2022-02-09 00:56:36-my_logger-simulator.py-138  line : accuracy: 0.931300163269043
+[INFO ]2022-02-09 00:56:36-my_logger-simulator.py-107  line : ---communicate round 10 start---
+[INFO ]2022-02-09 00:56:45-my_logger-simulator.py-138  line : accuracy: 0.9345000982284546
+[INFO ]2022-02-09 00:56:45-my_logger-simulator.py-107  line : ---communicate round 11 start---
+[INFO ]2022-02-09 00:56:54-my_logger-simulator.py-138  line : accuracy: 0.9370999932289124
+[INFO ]2022-02-09 00:56:54-my_logger-simulator.py-107  line : ---communicate round 12 start---
+[INFO ]2022-02-09 00:57:03-my_logger-simulator.py-138  line : accuracy: 0.9279001355171204
+[INFO ]2022-02-09 00:57:03-my_logger-simulator.py-107  line : ---communicate round 13 start---
+[INFO ]2022-02-09 00:57:12-my_logger-simulator.py-138  line : accuracy: 0.948199987411499
+[INFO ]2022-02-09 00:57:12-my_logger-simulator.py-107  line : ---communicate round 14 start---
+[INFO ]2022-02-09 00:57:21-my_logger-simulator.py-138  line : accuracy: 0.9513999223709106
+[INFO ]2022-02-09 00:57:21-my_logger-simulator.py-107  line : ---communicate round 15 start---
+[INFO ]2022-02-09 00:57:30-my_logger-simulator.py-138  line : accuracy: 0.9490997195243835
+[INFO ]2022-02-09 00:57:30-my_logger-simulator.py-107  line : ---communicate round 16 start---
+[INFO ]2022-02-09 00:57:39-my_logger-simulator.py-138  line : accuracy: 0.945399820804596
+[INFO ]2022-02-09 00:57:39-my_logger-simulator.py-107  line : ---communicate round 17 start---
+[INFO ]2022-02-09 00:57:49-my_logger-simulator.py-138  line : accuracy: 0.9580999612808228
+[INFO ]2022-02-09 00:57:49-my_logger-simulator.py-107  line : ---communicate round 18 start---
+[INFO ]2022-02-09 00:57:58-my_logger-simulator.py-138  line : accuracy: 0.9616997838020325
+[INFO ]2022-02-09 00:57:58-my_logger-simulator.py-107  line : ---communicate round 19 start---
+[INFO ]2022-02-09 00:58:07-my_logger-simulator.py-138  line : accuracy: 0.9587999582290649
+[INFO ]2022-02-09 00:58:07-my_logger-simulator.py-107  line : ---communicate round 20 start---
+[INFO ]2022-02-09 00:58:16-my_logger-simulator.py-138  line : accuracy: 0.9618999361991882
+[INFO ]2022-02-09 00:58:16-my_logger-simulator.py-107  line : ---communicate round 21 start---
+[INFO ]2022-02-09 00:58:25-my_logger-simulator.py-138  line : accuracy: 0.9615997672080994
+[INFO ]2022-02-09 00:58:25-my_logger-simulator.py-107  line : ---communicate round 22 start---
+[INFO ]2022-02-09 00:58:34-my_logger-simulator.py-138  line : accuracy: 0.9643997550010681
+[INFO ]2022-02-09 00:58:34-my_logger-simulator.py-107  line : ---communicate round 23 start---
+[INFO ]2022-02-09 00:58:43-my_logger-simulator.py-138  line : accuracy: 0.9664002060890198
+[INFO ]2022-02-09 00:58:43-my_logger-simulator.py-107  line : ---communicate round 24 start---
+[INFO ]2022-02-09 00:58:52-my_logger-simulator.py-138  line : accuracy: 0.9705998301506042
+[INFO ]2022-02-09 00:58:52-my_logger-simulator.py-107  line : ---communicate round 25 start---
+[INFO ]2022-02-09 00:59:02-my_logger-simulator.py-138  line : accuracy: 0.9692999720573425
+[INFO ]2022-02-09 00:59:02-my_logger-simulator.py-107  line : ---communicate round 26 start---
+[INFO ]2022-02-09 00:59:11-my_logger-simulator.py-138  line : accuracy: 0.9695999622344971
+[INFO ]2022-02-09 00:59:11-my_logger-simulator.py-107  line : ---communicate round 27 start---
+[INFO ]2022-02-09 00:59:20-my_logger-simulator.py-138  line : accuracy: 0.9658997654914856
+[INFO ]2022-02-09 00:59:20-my_logger-simulator.py-107  line : ---communicate round 28 start---
+[INFO ]2022-02-09 00:59:30-my_logger-simulator.py-138  line : accuracy: 0.971299946308136
+[INFO ]2022-02-09 00:59:30-my_logger-simulator.py-107  line : ---communicate round 29 start---
+[INFO ]2022-02-09 00:59:39-my_logger-simulator.py-138  line : accuracy: 0.9726998805999756
+[INFO ]2022-02-09 00:59:39-my_logger-simulator.py-107  line : ---communicate round 30 start---
+[INFO ]2022-02-09 00:59:48-my_logger-simulator.py-138  line : accuracy: 0.973599910736084
+[INFO ]2022-02-09 00:59:48-my_logger-simulator.py-107  line : ---communicate round 31 start---
+[INFO ]2022-02-09 00:59:57-my_logger-simulator.py-138  line : accuracy: 0.9733000993728638
+[INFO ]2022-02-09 00:59:57-my_logger-simulator.py-107  line : ---communicate round 32 start---
+[INFO ]2022-02-09 01:00:07-my_logger-simulator.py-138  line : accuracy: 0.9721998572349548
+[INFO ]2022-02-09 01:00:07-my_logger-simulator.py-107  line : ---communicate round 33 start---
+[INFO ]2022-02-09 01:00:16-my_logger-simulator.py-138  line : accuracy: 0.9758996963500977
+[INFO ]2022-02-09 01:00:16-my_logger-simulator.py-107  line : ---communicate round 34 start---
+[INFO ]2022-02-09 01:00:25-my_logger-simulator.py-138  line : accuracy: 0.9728001356124878
+[INFO ]2022-02-09 01:00:25-my_logger-simulator.py-107  line : ---communicate round 35 start---
+[INFO ]2022-02-09 01:00:34-my_logger-simulator.py-138  line : accuracy: 0.9745001196861267
+[INFO ]2022-02-09 01:00:34-my_logger-simulator.py-107  line : ---communicate round 36 start---
+[INFO ]2022-02-09 01:00:43-my_logger-simulator.py-138  line : accuracy: 0.9763000011444092
+[INFO ]2022-02-09 01:00:43-my_logger-simulator.py-107  line : ---communicate round 37 start---
+[INFO ]2022-02-09 01:00:52-my_logger-simulator.py-138  line : accuracy: 0.9771002531051636
+[INFO ]2022-02-09 01:00:52-my_logger-simulator.py-107  line : ---communicate round 38 start---
+[INFO ]2022-02-09 01:01:01-my_logger-simulator.py-138  line : accuracy: 0.9798001050949097
+[INFO ]2022-02-09 01:01:01-my_logger-simulator.py-107  line : ---communicate round 39 start---
+[INFO ]2022-02-09 01:01:10-my_logger-simulator.py-138  line : accuracy: 0.9783000946044922
+[INFO ]2022-02-09 01:01:10-my_logger-simulator.py-107  line : ---communicate round 40 start---
+[INFO ]2022-02-09 01:01:19-my_logger-simulator.py-138  line : accuracy: 0.9774999618530273
+[INFO ]2022-02-09 01:01:19-my_logger-simulator.py-107  line : ---communicate round 41 start---
+[INFO ]2022-02-09 01:01:29-my_logger-simulator.py-138  line : accuracy: 0.9792000651359558
+[INFO ]2022-02-09 01:01:29-my_logger-simulator.py-107  line : ---communicate round 42 start---
+[INFO ]2022-02-09 01:01:38-my_logger-simulator.py-138  line : accuracy: 0.9796000719070435
+[INFO ]2022-02-09 01:01:38-my_logger-simulator.py-107  line : ---communicate round 43 start---
+[INFO ]2022-02-09 01:01:47-my_logger-simulator.py-138  line : accuracy: 0.9782001376152039
+[INFO ]2022-02-09 01:01:47-my_logger-simulator.py-107  line : ---communicate round 44 start---
+[INFO ]2022-02-09 01:01:56-my_logger-simulator.py-138  line : accuracy: 0.980199933052063
+[INFO ]2022-02-09 01:01:56-my_logger-simulator.py-107  line : ---communicate round 45 start---
+[INFO ]2022-02-09 01:02:05-my_logger-simulator.py-138  line : accuracy: 0.9795001149177551
+[INFO ]2022-02-09 01:02:05-my_logger-simulator.py-107  line : ---communicate round 46 start---
+[INFO ]2022-02-09 01:02:14-my_logger-simulator.py-138  line : accuracy: 0.9800000786781311
+[INFO ]2022-02-09 01:02:14-my_logger-simulator.py-107  line : ---communicate round 47 start---
+[INFO ]2022-02-09 01:02:23-my_logger-simulator.py-138  line : accuracy: 0.979100227355957
+[INFO ]2022-02-09 01:02:23-my_logger-simulator.py-107  line : ---communicate round 48 start---
+[INFO ]2022-02-09 01:02:32-my_logger-simulator.py-138  line : accuracy: 0.9798001050949097
+[INFO ]2022-02-09 01:02:32-my_logger-simulator.py-107  line : ---communicate round 49 start---
+[INFO ]2022-02-09 01:02:42-my_logger-simulator.py-138  line : accuracy: 0.9801000952720642
+[INFO ]2022-02-09 01:02:42-my_logger-simulator.py-107  line : ---communicate round 50 start---
+[INFO ]2022-02-09 01:02:51-my_logger-simulator.py-138  line : accuracy: 0.9809001088142395
+[INFO ]2022-02-09 01:02:51-my_logger-simulator.py-107  line : ---communicate round 51 start---
+[INFO ]2022-02-09 01:03:00-my_logger-simulator.py-138  line : accuracy: 0.9810000658035278
+[INFO ]2022-02-09 01:03:00-my_logger-simulator.py-107  line : ---communicate round 52 start---
+[INFO ]2022-02-09 01:03:09-my_logger-simulator.py-138  line : accuracy: 0.9803001880645752
+[INFO ]2022-02-09 01:03:09-my_logger-simulator.py-107  line : ---communicate round 53 start---
+[INFO ]2022-02-09 01:03:19-my_logger-simulator.py-138  line : accuracy: 0.9815001487731934
+[INFO ]2022-02-09 01:03:19-my_logger-simulator.py-107  line : ---communicate round 54 start---
+[INFO ]2022-02-09 01:03:28-my_logger-simulator.py-138  line : accuracy: 0.9822000861167908
+[INFO ]2022-02-09 01:03:28-my_logger-simulator.py-107  line : ---communicate round 55 start---
+[INFO ]2022-02-09 01:03:37-my_logger-simulator.py-138  line : accuracy: 0.9808000922203064
+[INFO ]2022-02-09 01:03:37-my_logger-simulator.py-107  line : ---communicate round 56 start---
+[INFO ]2022-02-09 01:03:46-my_logger-simulator.py-138  line : accuracy: 0.9798999428749084
+[INFO ]2022-02-09 01:03:46-my_logger-simulator.py-107  line : ---communicate round 57 start---
+[INFO ]2022-02-09 01:03:55-my_logger-simulator.py-138  line : accuracy: 0.9827001094818115
+[INFO ]2022-02-09 01:03:55-my_logger-simulator.py-107  line : ---communicate round 58 start---
+[INFO ]2022-02-09 01:04:04-my_logger-simulator.py-138  line : accuracy: 0.9811002016067505
+[INFO ]2022-02-09 01:04:04-my_logger-simulator.py-107  line : ---communicate round 59 start---
+[INFO ]2022-02-09 01:04:13-my_logger-simulator.py-138  line : accuracy: 0.980600118637085
+[INFO ]2022-02-09 01:04:13-my_logger-simulator.py-107  line : ---communicate round 60 start---
+[INFO ]2022-02-09 01:04:23-my_logger-simulator.py-138  line : accuracy: 0.9829002022743225
+[INFO ]2022-02-09 01:04:23-my_logger-simulator.py-107  line : ---communicate round 61 start---
+[INFO ]2022-02-09 01:04:32-my_logger-simulator.py-138  line : accuracy: 0.9818001985549927
+[INFO ]2022-02-09 01:04:32-my_logger-simulator.py-107  line : ---communicate round 62 start---
+[INFO ]2022-02-09 01:04:41-my_logger-simulator.py-138  line : accuracy: 0.980100154876709
+[INFO ]2022-02-09 01:04:41-my_logger-simulator.py-107  line : ---communicate round 63 start---
+[INFO ]2022-02-09 01:04:50-my_logger-simulator.py-138  line : accuracy: 0.9830001592636108
+[INFO ]2022-02-09 01:04:50-my_logger-simulator.py-107  line : ---communicate round 64 start---
+[INFO ]2022-02-09 01:04:59-my_logger-simulator.py-138  line : accuracy: 0.9826000928878784
+[INFO ]2022-02-09 01:04:59-my_logger-simulator.py-107  line : ---communicate round 65 start---
+[INFO ]2022-02-09 01:05:08-my_logger-simulator.py-138  line : accuracy: 0.9822000861167908
+[INFO ]2022-02-09 01:05:08-my_logger-simulator.py-107  line : ---communicate round 66 start---
+[INFO ]2022-02-09 01:05:17-my_logger-simulator.py-138  line : accuracy: 0.9825000762939453
+[INFO ]2022-02-09 01:05:17-my_logger-simulator.py-107  line : ---communicate round 67 start---
+[INFO ]2022-02-09 01:05:27-my_logger-simulator.py-138  line : accuracy: 0.9834002256393433
+[INFO ]2022-02-09 01:05:27-my_logger-simulator.py-107  line : ---communicate round 68 start---
+[INFO ]2022-02-09 01:05:36-my_logger-simulator.py-138  line : accuracy: 0.9821999669075012
+[INFO ]2022-02-09 01:05:36-my_logger-simulator.py-107  line : ---communicate round 69 start---
+[INFO ]2022-02-09 01:05:45-my_logger-simulator.py-138  line : accuracy: 0.9825001358985901
+[INFO ]2022-02-09 01:05:45-my_logger-simulator.py-107  line : ---communicate round 70 start---
+[INFO ]2022-02-09 01:05:54-my_logger-simulator.py-138  line : accuracy: 0.9823002219200134
+[INFO ]2022-02-09 01:05:54-my_logger-simulator.py-107  line : ---communicate round 71 start---
+[INFO ]2022-02-09 01:06:03-my_logger-simulator.py-138  line : accuracy: 0.9829002022743225
+[INFO ]2022-02-09 01:06:03-my_logger-simulator.py-107  line : ---communicate round 72 start---
+[INFO ]2022-02-09 01:06:12-my_logger-simulator.py-138  line : accuracy: 0.9825001358985901
+[INFO ]2022-02-09 01:06:12-my_logger-simulator.py-107  line : ---communicate round 73 start---
+[INFO ]2022-02-09 01:06:21-my_logger-simulator.py-138  line : accuracy: 0.9827999472618103
+[INFO ]2022-02-09 01:06:21-my_logger-simulator.py-107  line : ---communicate round 74 start---
+[INFO ]2022-02-09 01:06:30-my_logger-simulator.py-138  line : accuracy: 0.9827999472618103
+[INFO ]2022-02-09 01:06:30-my_logger-simulator.py-107  line : ---communicate round 75 start---
+[INFO ]2022-02-09 01:06:40-my_logger-simulator.py-138  line : accuracy: 0.9834998250007629
+[INFO ]2022-02-09 01:06:40-my_logger-simulator.py-107  line : ---communicate round 76 start---
+[INFO ]2022-02-09 01:06:49-my_logger-simulator.py-138  line : accuracy: 0.983799934387207
+[INFO ]2022-02-09 01:06:49-my_logger-simulator.py-107  line : ---communicate round 77 start---
+[INFO ]2022-02-09 01:06:58-my_logger-simulator.py-138  line : accuracy: 0.9828999638557434
+[INFO ]2022-02-09 01:06:58-my_logger-simulator.py-107  line : ---communicate round 78 start---
+[INFO ]2022-02-09 01:07:07-my_logger-simulator.py-138  line : accuracy: 0.9834999442100525
+[INFO ]2022-02-09 01:07:07-my_logger-simulator.py-107  line : ---communicate round 79 start---
+[INFO ]2022-02-09 01:07:16-my_logger-simulator.py-138  line : accuracy: 0.9845000505447388
+[INFO ]2022-02-09 01:07:16-my_logger-simulator.py-107  line : ---communicate round 80 start---
+[INFO ]2022-02-09 01:07:25-my_logger-simulator.py-138  line : accuracy: 0.9836999773979187
+[INFO ]2022-02-09 01:07:25-my_logger-simulator.py-107  line : ---communicate round 81 start---
+[INFO ]2022-02-09 01:07:34-my_logger-simulator.py-138  line : accuracy: 0.9838001728057861
+[INFO ]2022-02-09 01:07:34-my_logger-simulator.py-107  line : ---communicate round 82 start---
+[INFO ]2022-02-09 01:07:44-my_logger-simulator.py-138  line : accuracy: 0.9840001463890076
+[INFO ]2022-02-09 01:07:44-my_logger-simulator.py-107  line : ---communicate round 83 start---
+[INFO ]2022-02-09 01:07:53-my_logger-simulator.py-138  line : accuracy: 0.982100248336792
+[INFO ]2022-02-09 01:07:53-my_logger-simulator.py-107  line : ---communicate round 84 start---
+[INFO ]2022-02-09 01:08:02-my_logger-simulator.py-138  line : accuracy: 0.9830000996589661
+[INFO ]2022-02-09 01:08:02-my_logger-simulator.py-107  line : ---communicate round 85 start---
+[INFO ]2022-02-09 01:08:11-my_logger-simulator.py-138  line : accuracy: 0.9830000996589661
+[INFO ]2022-02-09 01:08:11-my_logger-simulator.py-107  line : ---communicate round 86 start---
+[INFO ]2022-02-09 01:08:20-my_logger-simulator.py-138  line : accuracy: 0.9843999147415161
+[INFO ]2022-02-09 01:08:20-my_logger-simulator.py-107  line : ---communicate round 87 start---
+[INFO ]2022-02-09 01:08:29-my_logger-simulator.py-138  line : accuracy: 0.984700083732605
+[INFO ]2022-02-09 01:08:29-my_logger-simulator.py-107  line : ---communicate round 88 start---
+[INFO ]2022-02-09 01:08:38-my_logger-simulator.py-138  line : accuracy: 0.9850000739097595
+[INFO ]2022-02-09 01:08:38-my_logger-simulator.py-107  line : ---communicate round 89 start---
+[INFO ]2022-02-09 01:08:48-my_logger-simulator.py-138  line : accuracy: 0.9829001426696777
+[INFO ]2022-02-09 01:08:48-my_logger-simulator.py-107  line : ---communicate round 90 start---
+[INFO ]2022-02-09 01:08:57-my_logger-simulator.py-138  line : accuracy: 0.9845001697540283
+[INFO ]2022-02-09 01:08:57-my_logger-simulator.py-107  line : ---communicate round 91 start---
+[INFO ]2022-02-09 01:09:06-my_logger-simulator.py-138  line : accuracy: 0.9852001070976257
+[INFO ]2022-02-09 01:09:06-my_logger-simulator.py-107  line : ---communicate round 92 start---
+[INFO ]2022-02-09 01:09:15-my_logger-simulator.py-138  line : accuracy: 0.9850999712944031
+[INFO ]2022-02-09 01:09:15-my_logger-simulator.py-107  line : ---communicate round 93 start---
+[INFO ]2022-02-09 01:09:24-my_logger-simulator.py-138  line : accuracy: 0.98499995470047
+[INFO ]2022-02-09 01:09:24-my_logger-simulator.py-107  line : ---communicate round 94 start---
+[INFO ]2022-02-09 01:09:33-my_logger-simulator.py-138  line : accuracy: 0.9843999743461609
+[INFO ]2022-02-09 01:09:33-my_logger-simulator.py-107  line : ---communicate round 95 start---
+[INFO ]2022-02-09 01:09:42-my_logger-simulator.py-138  line : accuracy: 0.9846000671386719
+[INFO ]2022-02-09 01:09:42-my_logger-simulator.py-107  line : ---communicate round 96 start---
+[INFO ]2022-02-09 01:09:51-my_logger-simulator.py-138  line : accuracy: 0.9848000407218933
+[INFO ]2022-02-09 01:09:51-my_logger-simulator.py-107  line : ---communicate round 97 start---
+[INFO ]2022-02-09 01:10:01-my_logger-simulator.py-138  line : accuracy: 0.9843001365661621
+[INFO ]2022-02-09 01:10:01-my_logger-simulator.py-107  line : ---communicate round 98 start---
+[INFO ]2022-02-09 01:10:10-my_logger-simulator.py-138  line : accuracy: 0.984099805355072
+[INFO ]2022-02-09 01:10:10-my_logger-simulator.py-107  line : ---communicate round 99 start---
+[INFO ]2022-02-09 01:10:19-my_logger-simulator.py-138  line : accuracy: 0.9848000407218933
+[INFO ]2022-02-09 01:10:19-my_logger-simulator.py-107  line : ---communicate round 100 start---
+[INFO ]2022-02-09 01:10:28-my_logger-simulator.py-138  line : accuracy: 0.984900176525116
+[INFO ]2022-02-09 01:10:28-my_logger-simulator.py-107  line : ---communicate round 101 start---
+[INFO ]2022-02-09 01:10:37-my_logger-simulator.py-138  line : accuracy: 0.984200119972229
+[INFO ]2022-02-09 01:10:37-my_logger-simulator.py-107  line : ---communicate round 102 start---
+[INFO ]2022-02-09 01:10:47-my_logger-simulator.py-138  line : accuracy: 0.98499995470047
+[INFO ]2022-02-09 01:10:47-my_logger-simulator.py-107  line : ---communicate round 103 start---
