@@ -110,7 +110,7 @@ if __name__ == "__main__":
         clients_in_comm = ['client{}'.format(i) for i in order[0:n_participants]]
 
         sum_parameters = None
-
+    
         # local train every participant
         for client in tqdm(clients_in_comm,unit='client',ncols=100):
             local_parameters = cluster.clients_set[client].local_update(args['epoch'], args['batch_size'], net,
