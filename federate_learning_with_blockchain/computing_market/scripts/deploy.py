@@ -3,7 +3,7 @@
 from brownie import ComputingMarket, accounts
 
 
-def main():
+def deploy_contract():
     setting = {
         "batchSize":20,
         "learningRate":"0.01",
@@ -12,6 +12,7 @@ def main():
     }
     setting_list = [v for v in setting.values()]
     contract =  ComputingMarket.deploy("Test Model Name",setting_list,{'from': accounts[0]})
+    print('call main')
     return contract
 
 

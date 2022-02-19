@@ -3,21 +3,21 @@ pragma solidity ^0.8.11;
 // SPDX-License-Identifier: MIT
 contract ComputingMarket{
      
-    // model's update uploader by local trainer (local update gradient)
+    // model's update uploader by local trainer (local update model)
     struct ModelUpdate{
         address uploader;
         uint trainSize; // the size of training data
         uint version;
-        bytes updateGradient;
+        bytes updateModel;
     }
     // global model parms 
-    struct ModelParams{
+    struct GlobalModel{
         bytes modelParams;
         uint version;
     }
     // snapshot at specific epoch 
     struct Snapshot{
-        ModelParams globalModel; // generate by modelUpdates 
+        GlobalModel globalModel; // generate by modelUpdates 
         address[] participators;
         mapping(address => ModelUpdate) modelUpdates;
         uint version;
@@ -50,8 +50,8 @@ contract ComputingMarket{
         setting = _setting;
     }
 
-    // get all local update gradients for specific version
-    function getLocalUpdates(uint _version) view public returns (ModelUpdate[] memory) {
+    // get all update models (local training) within specific version
+    function getModelUpdates(uint _version) view public returns (ModelUpdate[] memory) {
         require(_version <= curVersion,"invalid version");
         Snapshot storage snapshot = snapshots[_version];
         ModelUpdate[] memory updates = new ModelUpdate[](snapshot.participators.length);
@@ -62,22 +62,26 @@ contract ComputingMarket{
         }
         return updates;
     }
+
     // get all local update gradients for the lastest version
-    function getLocalUpdates() view public returns (ModelUpdate[]memory){
-        return getLocalUpdates(curVersion);
+    function getModelUpdates() view public returns (ModelUpdate[]memory){
+        return getModelUpdates(curVersion);
     }
+
     // get global model params for specific version
-    function getGlobalParams(uint _version) view public returns (ModelParams memory){
+    function getGlobalModel(uint _version) view public returns (GlobalModel memory){
         require(_version <= curVersion,"invalid version");
         Snapshot storage snapshot = snapshots[_version];
         return snapshot.globalModel;
     }
+
     // get global model params for the lastest version
-    function getGlobalParams() view public returns (ModelParams memory){
-        return getGlobalParams(curVersion);
+    function getGlobalModel() view public returns (GlobalModel memory){
+        return getGlobalModel(curVersion);
     }
-    // upload local training gradient
-    function uploadLocalUpdate(uint _version,uint _trainingSize,bytes memory _updateGradient) external{
+
+    // upload local training model
+    function uploadModelUpdate(uint _version,uint _trainingSize,bytes memory _updateModel) public{
         require(_version == curVersion,"update gradient is expired");
         Snapshot storage snapshot = snapshots[_version];
         // new participator of current version
@@ -86,18 +90,32 @@ contract ComputingMarket{
             snapshot.participators.push(msg.sender);    
         }
         emit UploadLocalUpdate(msg.sender, _version);
-        snapshot.modelUpdates[msg.sender] = ModelUpdate(msg.sender,_trainingSize,_version,_updateGradient);
+        snapshot.modelUpdates[msg.sender] = ModelUpdate(msg.sender,_trainingSize,_version,_updateModel);
         if (snapshot.participators.length == setting.nParticipator){
             // current version's local updates collected finished , need to be aggregated
             emit NeedAggregation(_version);
         }
     }
+    
+    function uploadModelUpdate(uint _trainingSize,bytes memory _updateModel) public{
+        return uploadModelUpdate(curVersion, _trainingSize, _updateModel);
+    }
+
     // upload local aggregation (globalModel(version) + localUpdates(version) ---> globalModel(version+1))
-    function uploadAggregation(uint _version,bytes memory _modelParams) external {
+    function uploadAggregation(uint _version,bytes memory _globalModel) public {
+        // init the global model
+        if(curVersion == 0 && snapshots[curVersion].participators.length == 0){
+            snapshots[curVersion].globalModel = GlobalModel(_globalModel,_version);
+            return ;
+        }
         require(_version == curVersion + 1,"invalid version");
         curVersion ++;
-        snapshots[curVersion].globalModel = ModelParams(_modelParams,_version);
+        snapshots[curVersion].globalModel = GlobalModel(_globalModel,_version);
         emit GlobalModelUpdate(msg.sender, _version);
+    }
+
+    function uploadAggregation(bytes memory _globalModel) public{
+        return uploadAggregation(curVersion,_globalModel);
     }
     
 }

@@ -1,10 +1,15 @@
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-def get_model(model_name = 'mnist_2nn'):
+from torch import optim
+def get_model(model_name = "mnist_2nn"):
     return MNIST_2NN()
 
+def get_opti(model,learning_rate,opti_name = "default"):
+    return optim.Adam(model.parameters(), lr=learning_rate)
+
+def get_loss_fn(loss_fn_name = "default"):
+    return F.cross_entropy
+    
 class MNIST_2NN(nn.Module):
     def __init__(self):
         super().__init__()
