@@ -1,5 +1,6 @@
 from brownie import accounts
-import utils
+import client_module.utils as utils
+from client_module.log import logger as l
 setting_item = [
     "batchSize",
     "learningRate",
@@ -28,8 +29,9 @@ class MockInvoker(object):
         return bytes_model_param,lastestVersion
 
     def get_model_updates(self):
-        model_update_list = self.contract.getModelUpdates({"from":self.account})
-        assert isinstance(model_update_list,list)
+        return_value = self.contract.getModelUpdates({"from":self.account})
+        model_update_list = return_value
+        l.debug(f'get_model_updates\'s len :{len(model_update_list)}')
         format_model_updates = []
         for model_update in model_update_list:
             model_info = {
@@ -43,8 +45,7 @@ class MockInvoker(object):
 
     def upload_aggregation(self,aggregated_model):
         assert isinstance(aggregated_model,bytes)
-        self.contract.uploadAggregation(aggregated_model,{"from":self.account})
-
+        self.contract.uploadAggregation(aggregated_model,{"from":self.account,"gas_limit":1000000000})
     def upload_model_update(self,data_size,update_model):
         assert isinstance(update_model,bytes)
         self.contract.uploadModelUpdate(data_size,update_model,{"from":self.account})

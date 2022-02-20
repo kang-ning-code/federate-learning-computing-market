@@ -1,27 +1,30 @@
 import torch
-import model 
+import client_module.model  as model
+from client_module.log import logger as l
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 import pickle
+import hashlib
 class Trainer(object):
     def __init__(self,train_setting):
-        assert isinstance(train_setting,map)
+        l.debug(f"type of train_setting is {type(train_setting)}")
+        assert isinstance(train_setting,dict)
         # training setting
         self.epochs = train_setting['epochs']
         self.batch_size = train_setting['batch_size']
         self.model_name = train_setting['model_name']
-        self.learning_rate = train_setting['learning_rate']
+        self.learning_rate = float(train_setting['learning_rate'])
         self.train_ds = train_setting['dataset']
         assert isinstance(self.train_ds,TensorDataset)
         # init training model
         self.model = model.get_model(self.model_name)
-        dev = torch.device('cpu')
+        self.dev = torch.device('cpu')
         if torch.cuda.is_available():
-            dev = torch.device('cuda')
+            self.dev = torch.device('cuda')
         if torch.cuda.device_count() > 1:
             self.model = torch.nn.DataParallel(self.model)
-        self.model = self.model.to(dev)
-        self.opti = model.get_opti(self.model.parameters,self.learning_rate)
+        self.model = self.model.to(self.dev)
+        self.opti = model.get_opti(self.model,self.learning_rate)
         self.loss_fn = model.get_loss_fn()
         # init dataloader
         self.train_dl = DataLoader(self.train_ds,batch_size= self.batch_size,shuffle=True)
@@ -40,6 +43,11 @@ class Trainer(object):
     def get_data_size(self):
         return len(self.train_dl)
 
+    def get_model_abstract(self):
+        m = hashlib.md5()
+        m.update(self.get_bytes_model())
+        return m.hexdigest()
+
     def _load_model(self,model_params_dict):
         self.model.load_state_dict(model_params_dict,strict=True)
 
@@ -55,6 +63,8 @@ class Trainer(object):
     
     def evaluate(self,test_dl):
         assert isinstance(test_dl,DataLoader)
+        sum_accu = 0
+        num = 0
         for test_x, test_y in test_dl:
             # get batch test_x & batch test_y
             test_x, test_y = test_x.to(self.dev), test_y.to(self.dev)
@@ -68,6 +78,8 @@ class Trainer(object):
     def aggregate(self,update_models):
         # [ (data_size_1,bytes_model_1) , .... , (data_size_n,bytes_model_n) ]
         assert isinstance(update_models,list)
+        if len(update_models) == 0:
+            return pickle.dumps(self.model.state_dict())
         average_params = None
         all_data_size = 0
         for update_info in update_models:

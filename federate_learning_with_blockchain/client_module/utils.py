@@ -1,3 +1,5 @@
+from cmath import log
+from client_module.log import logger as l
 import gzip
 import os
 import numpy as np
@@ -55,6 +57,7 @@ def split_mnist_dataset(is_iid,dataset_dir,n_clients):
     shard_size = train_x_size// n_clients // 2
     # the id list of shard, every shard's size is [shard_size]
     shard_ids= np.random.permutation(train_x_size // shard_size)
+    l.info(f"train_x_size:{train_x_size},shard_size:{shard_size},shard_ids.len:{len(shard_ids)}")
     split_dataset_tensor = {}
     for i in range(n_clients):
         first_id = shard_ids[i * 2]
@@ -67,6 +70,8 @@ def split_mnist_dataset(is_iid,dataset_dir,n_clients):
         client_train_x, client_train_y = np.vstack((first_shard, second_shard)), np.vstack((label_shards1, label_shards2))
         client_train_y = np.argmax(client_train_y, axis=1)
         x_tensor ,y_tensor= torch.tensor(client_train_x),torch.tensor(client_train_y)
+        if i == 0:
+            l.info(f"splited_train_x_tensor.shape:{x_tensor.shape},splited_train_y_tensor.shape:{y_tensor.shape}")
         split_dataset_tensor[i]=(x_tensor,y_tensor)
     test_x_tensor = torch.tensor(test_x)
     test_y_tensor = torch.argmax(torch.tensor(test_y), dim=1)
@@ -112,3 +117,5 @@ def dense_to_one_hot(labels_dense, num_classes=10):
     labels_one_hot = np.zeros((num_labels, num_classes))
     labels_one_hot.flat[index_offset + labels_dense.ravel()] = 1
     return labels_one_hot
+
+
