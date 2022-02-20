@@ -7,7 +7,7 @@ import pickle
 import hashlib
 class Trainer(object):
     def __init__(self,train_setting):
-        l.debug(f"type of train_setting is {type(train_setting)}")
+        # l.debug(f"type of train_setting is {type(train_setting)}")
         assert isinstance(train_setting,dict)
         # training setting
         self.epochs = train_setting['epochs']
@@ -20,6 +20,7 @@ class Trainer(object):
         self.model = model.get_model(self.model_name)
         self.dev = torch.device('cpu')
         if torch.cuda.is_available():
+            l.info(f'use cuda as dev')
             self.dev = torch.device('cuda')
         if torch.cuda.device_count() > 1:
             self.model = torch.nn.DataParallel(self.model)
@@ -31,13 +32,14 @@ class Trainer(object):
          
     def load_bytes_model(self,bytes_model):
         assert isinstance(bytes_model,bytes)
-        dict = pickle.loads(bytes_model)
-        self._load_model(dict)
+        model_param_dict = pickle.loads(bytes_model)
+        l.debug(f"load model param,{type(model_param_dict)}")
+        self._load_model(model_param_dict)
 
     def get_bytes_model(self):
-        dict = self.model.state_dict()
+        model_param_dict = self.model.state_dict()
         # transfer obj to bytes
-        bytes_model = pickle.dumps(dict)
+        bytes_model = pickle.dumps(model_param_dict)
         return bytes_model
 
     def get_data_size(self):
@@ -88,6 +90,7 @@ class Trainer(object):
             #     "train_size":
             #     "version":
             #     "bytes_model":
+            #     "bytes_model_hash"
             # }
             data_size = update_info['train_size']
             bytes_model = update_info['bytes_model']
@@ -101,7 +104,7 @@ class Trainer(object):
                     average_params[k] = average_params[k] + model_dict[k] * data_size
             all_data_size  = all_data_size + data_size
         for k in average_params:
-            average_params[k] = average_params / (all_data_size * 1.0)
+            average_params[k] = average_params[k] / (all_data_size * 1.0)
         # bytes
         bytes_aggregate_model = pickle.dumps(average_params)
         return bytes_aggregate_model

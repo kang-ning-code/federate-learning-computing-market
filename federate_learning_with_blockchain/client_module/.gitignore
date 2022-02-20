@@ -1,4 +1,4 @@
-reports/
-dataset/
+reports/*
+dataset/*
 __pycache__
 build/

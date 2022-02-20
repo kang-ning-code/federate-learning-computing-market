@@ -18,7 +18,8 @@ networks:
         default_contract_owner: true
         timeout: 6000
         cmd_settings: 
-            gas_limit: 10000000000
+            gas_limit: 10000000001
+            default_balance: "1000 ether"
             timeout: 6000
     live:
         gas_limit: auto

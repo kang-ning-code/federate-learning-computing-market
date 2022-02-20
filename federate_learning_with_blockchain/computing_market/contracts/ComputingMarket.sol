@@ -8,11 +8,11 @@ contract ComputingMarket{
         address uploader;
         uint trainSize; // the size of training data
         uint version;
-        bytes updateModel;
+        string modelHash; // the model's ipfs file's hash 
     }
     // global model parms 
     struct GlobalModel{
-        bytes modelParams;
+        string modelHash;
         uint version;
     }
     // snapshot at specific epoch 
@@ -81,7 +81,7 @@ contract ComputingMarket{
     }
 
     // upload local training model
-    function uploadModelUpdate(uint _version,uint _trainingSize,bytes memory _updateModel) public{
+    function uploadModelUpdate(uint _version,uint _trainingSize,string memory _updateModelHash) public{
         require(_version == curVersion,"update gradient is expired");
         Snapshot storage snapshot = snapshots[_version];
         // new participator of current version
@@ -90,32 +90,32 @@ contract ComputingMarket{
             snapshot.participators.push(msg.sender);    
         }
         emit UploadLocalUpdate(msg.sender, _version);
-        snapshot.modelUpdates[msg.sender] = ModelUpdate(msg.sender,_trainingSize,_version,_updateModel);
+        snapshot.modelUpdates[msg.sender] = ModelUpdate(msg.sender,_trainingSize,_version,_updateModelHash);
         if (snapshot.participators.length == setting.nParticipator){
             // current version's local updates collected finished , need to be aggregated
             emit NeedAggregation(_version);
         }
     }
     
-    function uploadModelUpdate(uint _trainingSize,bytes memory _updateModel) public{
-        return uploadModelUpdate(curVersion, _trainingSize, _updateModel);
+    function uploadModelUpdate(uint _trainingSize,string memory _updateModelHash) public{
+        return uploadModelUpdate(curVersion, _trainingSize, _updateModelHash);
     }
 
     // upload local aggregation (globalModel(version) + localUpdates(version) ---> globalModel(version+1))
-    function uploadAggregation(uint _version,bytes memory _globalModel) public {
+    function uploadAggregation(uint _version,string memory _globalModelHash) public {
         // init the global model
         if(curVersion == 0 && snapshots[curVersion].participators.length == 0){
-            snapshots[curVersion].globalModel = GlobalModel(_globalModel,_version);
+            snapshots[curVersion].globalModel = GlobalModel(_globalModelHash,_version);
             return ;
         }
         require(_version == curVersion + 1,"invalid version");
         curVersion ++;
-        snapshots[curVersion].globalModel = GlobalModel(_globalModel,_version);
+        snapshots[curVersion].globalModel = GlobalModel(_globalModelHash,_version);
         emit GlobalModelUpdate(msg.sender, _version);
     }
 
-    function uploadAggregation(bytes memory _globalModel) public{
-        return uploadAggregation(curVersion,_globalModel);
+    function uploadAggregation(string memory _globalModelHash) public{
+        return uploadAggregation(curVersion+1,_globalModelHash);
     }
     
 }

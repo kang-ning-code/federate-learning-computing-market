@@ -11,7 +11,6 @@ train_setting = {
 def deploy_contract():
     setting_list = [v for v in train_setting.values()]
     contract =  ComputingMarket.deploy("Test Model Name",setting_list,{'from': accounts[0]})
-    print('call main')
     return contract
 
 

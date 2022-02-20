@@ -22,11 +22,9 @@ class MockInvoker(object):
         }
         return setting_map
 
-    def get_global_model(self):
-        bytes_model_param,lastestVersion = self.contract.getGlobalModel({"from":self.account})
-        # transfer from type [HexStr] to type [bytes]
-        bytes_model_param = utils.hex2bytes(bytes_model_param)
-        return bytes_model_param,lastestVersion
+    def get_global_model_hash(self):
+        bytes_model_param_hash,lastestVersion = self.contract.getGlobalModel({"from":self.account})
+        return bytes_model_param_hash,lastestVersion
 
     def get_model_updates(self):
         return_value = self.contract.getModelUpdates({"from":self.account})
@@ -38,16 +36,17 @@ class MockInvoker(object):
                 "uploader":model_update[0],
                 "train_size":model_update[1],
                 "version":model_update[2],
-                "bytes_model":utils.hex2bytes(model_update[3])
+                "bytes_model_hash":model_update[3],
             }
             format_model_updates.append(model_info)
         return format_model_updates
 
-    def upload_aggregation(self,aggregated_model):
-        assert isinstance(aggregated_model,bytes)
-        self.contract.uploadAggregation(aggregated_model,{"from":self.account,"gas_limit":1000000000})
-    def upload_model_update(self,data_size,update_model):
-        assert isinstance(update_model,bytes)
-        self.contract.uploadModelUpdate(data_size,update_model,{"from":self.account})
+    def upload_aggregation(self,aggregated_model_hash):
+        assert isinstance(aggregated_model_hash,str)
+        self.contract.uploadAggregation(aggregated_model_hash,{"from":self.account,"gas_limit":1000000000})
+
+    def upload_model_update(self,data_size,update_model_hash):
+        assert isinstance(update_model_hash,str)
+        self.contract.uploadModelUpdate(data_size,update_model_hash,{"from":self.account})
     
     
