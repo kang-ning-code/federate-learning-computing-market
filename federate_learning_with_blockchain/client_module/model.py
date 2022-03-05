@@ -2,6 +2,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import optim
 def get_model(model_name = "mnist_2nn"):
+    if model_name == "mnist_cnn":
+        return MNIST_CNN()
     return MNIST_2NN()
 
 def get_opti(model,learning_rate,opti_name = "default"):
@@ -22,6 +24,8 @@ class MNIST_2NN(nn.Module):
         tensor = F.relu(self.fc2(tensor))
         tensor = self.fc3(tensor)
         return tensor
+
+
 
 class MNIST_CNN(nn.Module):
     def __init__(self):

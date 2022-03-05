@@ -1,5 +1,7 @@
 scripts to start cluster simulator
 ```python
+# activate env
+conda activate deeplearning_common
 # use console
 brownie console
 

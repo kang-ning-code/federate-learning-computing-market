@@ -44,7 +44,8 @@ parser.add_argument('-lp','--log_path',type=str,default='logs',help='the saving 
 parser.add_argument('-rp','--result_path',type=str,default='results',help='the saving folder path of result file')
 #
 parser.add_argument('-iid', '--IID', type=int, default=0, help='the way to allocate data to clients')
-
+#
+parser.add_argument('-at','--attack',type=int,default=0,help='exist attacker')
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -91,7 +92,7 @@ if __name__ == "__main__":
     opti = optim.Adam(net.parameters(), lr=args['learning_rate'])
 
 
-    cluster = Cluster('mnist', args['IID'], args['n_clients'], dev)
+    cluster = Cluster('mnist', args['IID'], args['n_clients'], dev,args['attack'])
     test_x_loader = cluster.test_x_loader
 
     logger.info('---finish prepare work---')
@@ -107,8 +108,9 @@ if __name__ == "__main__":
         logger.info(f"---communicate round {i+1} start---")
 
         order = np.random.permutation(args['n_clients'])
+        
         clients_in_comm = ['client{}'.format(i) for i in order[0:n_participants]]
-
+        logger.debug(f'selected clients {clients_in_comm}')
         sum_parameters = None
     
         # local train every participant
@@ -137,7 +139,7 @@ if __name__ == "__main__":
             num += 1
         logger.info(f'accuracy: {sum_accu/num}')
         result_file.write(f"round {i + 1} ,accuracy = {float(sum_accu / num)}\n")
-
+        
         if (i + 1) % args['save_freq'] == 0:
             torch.save(net, os.path.join(args['check_point_path'],
                                          '{}_n_comm{}_E{}_B{}_lr{}_num_clients{}_cf{}'.format(args['model_name'],

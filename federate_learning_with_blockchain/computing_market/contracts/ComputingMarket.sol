@@ -25,7 +25,7 @@ contract ComputingMarket{
     
     struct trainSetting{
         uint batchSize; // local training batch size
-        string learningRate; // local training learning rate (floatu)
+        string learningRate; // local training learning rate (float)
         uint epochs; // local training epoch step
         uint nParticipator; // the number of client participate in one global model update
     }

@@ -29,6 +29,7 @@ class Client(object):
         self.train_dl = DataLoader(self.train_ds, batch_size=batch_size, shuffle=True)
         for epoch in range(epochs):
             for data, label in self.train_dl:
+                label = label.type(torch.LongTensor)
                 data, label = data.to(self.dev), label.to(self.dev)
                 opti.zero_grad()
                 pred = net(data)
@@ -38,15 +39,15 @@ class Client(object):
         return net.state_dict()
 
 
-
 class Cluster(object):
-    def __init__(self, dataset_name, is_IID, n_clients, dev):
+    def __init__(self, dataset_name, is_IID, n_clients, dev,attacked):
         self.dataset_name = dataset_name
         self.is_IID = is_IID
         self.n_clients = n_clients
         self.dev = dev
         self.clients_set = {}
         self.test_x_loader = None
+        self.attacked = attacked
         self._balance_alloc_dataset()
 
     def _balance_alloc_dataset(self):
@@ -80,7 +81,24 @@ class Cluster(object):
             label_shards2 = train_y[shards_id2 * shard_size: shards_id2 * shard_size + shard_size]
             local_data, local_label = np.vstack((data_shards1, data_shards2)), np.vstack((label_shards1, label_shards2))
             local_label = np.argmax(local_label, axis=1)
-
+            # attacker 0..4..8
+            if i%4 == 0 and self.attacked:
+                logger.debug("exist attack %d",i)
+                poision_label = {
+                    1:0,
+                    2:4,
+                    3:9,
+                    4:2,
+                    5:5,
+                    6:8,
+                    7:7,
+                    8:6,
+                    9:3,
+                    0:1,
+                }
+                logger.debug(f'local_label before poison{local_label[:20]}')
+                local_label = np.array(list(map(lambda x:poision_label[x],local_label)))
+                logger.debug(f"local_label after poison{local_label[:20]}")
             client = Client(TensorDataset(torch.tensor(local_data), torch.tensor(local_label)), self.dev)
             self.clients_set['client{}'.format(i)] = client
 

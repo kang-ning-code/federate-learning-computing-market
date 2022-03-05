@@ -1,16 +1,20 @@
 from brownie import accounts
 import client_module.utils as utils
 from client_module.log import logger as l
+
 setting_item = [
     "batchSize",
     "learningRate",
     "epochs",
     "nParticipators",
 ]
+
 class MockInvoker(object):
+
     def __init__(self,setting) :
         self.contract = setting['contract']
         self.account = setting['account']
+        
     def get_setting(self):
         setting_list = self.contract.setting({"from":self.account})
         assert len(setting_list) == 4
@@ -41,7 +45,7 @@ class MockInvoker(object):
             format_model_updates.append(model_info)
         return format_model_updates
 
-    def upload_aggregation(self,aggregated_model_hash):
+    def upload_aggregation_hash(self,aggregated_model_hash):
         assert isinstance(aggregated_model_hash,str)
         self.contract.uploadAggregation(aggregated_model_hash,{"from":self.account,"gas_limit":1000000000})
 
