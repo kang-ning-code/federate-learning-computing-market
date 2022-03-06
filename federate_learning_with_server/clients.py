@@ -40,14 +40,14 @@ class Client(object):
 
 
 class Cluster(object):
-    def __init__(self, dataset_name, is_IID, n_clients, dev,attacked):
+    def __init__(self, dataset_name, is_IID, n_clients, dev,n_attack):
         self.dataset_name = dataset_name
         self.is_IID = is_IID
         self.n_clients = n_clients
         self.dev = dev
         self.clients_set = {}
         self.test_x_loader = None
-        self.attacked = attacked
+        self.n_attack = n_attack
         self._balance_alloc_dataset()
 
     def _balance_alloc_dataset(self):
@@ -70,6 +70,7 @@ class Cluster(object):
         # np.random.permutation(60000 // 300= 200)
         shards_id = np.random.permutation(dataset_helper.train_x_size // shard_size)
         logger.debug(f"shards_id\'s shape:{shards_id.shape},shard_size is {shard_size}")
+        attackers = []
         for i in range(self.n_clients):
             shards_id1 = shards_id[i * 2]
             shards_id2 = shards_id[i * 2 + 1]
@@ -82,8 +83,8 @@ class Cluster(object):
             local_data, local_label = np.vstack((data_shards1, data_shards2)), np.vstack((label_shards1, label_shards2))
             local_label = np.argmax(local_label, axis=1)
             # attacker 0..4..8
-            if i%4 == 0 and self.attacked:
-                logger.debug("exist attack %d",i)
+            if (i+1)%self.n_attack == 0 :
+                attackers.append(i)
                 poision_label = {
                     1:0,
                     2:4,
@@ -96,12 +97,13 @@ class Cluster(object):
                     9:3,
                     0:1,
                 }
-                logger.debug(f'local_label before poison{local_label[:20]}')
+                # logger.debug(f'local_label before poison{local_label[:20]}')
                 local_label = np.array(list(map(lambda x:poision_label[x],local_label)))
-                logger.debug(f"local_label after poison{local_label[:20]}")
+                # logger.debug(f"local_label after poison{local_label[:20]}")
+           
             client = Client(TensorDataset(torch.tensor(local_data), torch.tensor(local_label)), self.dev)
             self.clients_set['client{}'.format(i)] = client
-
+        logger.info(f"exists attaker as follow:{attackers}")
 if __name__=="__main__":
     MyClients = Cluster('mnist', True, 100, 0)
     print(Client)

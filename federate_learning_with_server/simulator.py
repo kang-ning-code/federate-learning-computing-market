@@ -2,7 +2,7 @@ import os
 import argparse
 import sys
 import time
-
+import copy
 from tqdm import tqdm,trange
 import numpy as np
 import torch
@@ -45,7 +45,69 @@ parser.add_argument('-rp','--result_path',type=str,default='results',help='the s
 #
 parser.add_argument('-iid', '--IID', type=int, default=0, help='the way to allocate data to clients')
 #
-parser.add_argument('-at','--attack',type=int,default=0,help='exist attacker')
+parser.add_argument('-at','--attack',type=int,default=4,help='exist attacker (every [at] clients exist 1 attacker)')
+#
+parser.add_argument('-ag','--aggregate',type=int,default=0,help= 'if aggragate is 1 ,use the specific aggragate method')
+
+def find_max_clique(graph):
+    global n,best_clique,best_clique_n,cur_clique,cur_clique_n
+    n = graph.shape[0]
+    best_clique = [False for _ in range(n)]
+    best_clique_n = 0
+    cur_clique = [False for _ in range(n)]
+    cur_clique_n = 0
+    def can_place(t):
+        global cur_clique,graph
+        for i in range(t):
+            if cur_clique[i] and (not graph[i][t]):
+                return False
+        return True
+
+    def backward(cur):
+        global cur_clique,cur_clique_n,best_clique,best_clique_n
+        if(cur >= n):
+            # record the best_result
+            for i in range(n):
+                best_clique[i] = cur_clique[i]
+            
+            best_clique_n = cur_clique_n
+            return 
+        # place into cur clique
+        if(can_place(cur)):
+            cur_clique[cur] = True
+            cur_clique_n = cur_clique_n +  1
+            backward(cur+1)
+            cur_clique_n = cur_clique_n - 1
+            cur_clique[cur] = False
+        # do not place into cur clique
+        if(cur_clique_n + n-1-cur>best_clique_n):
+            cur_clique[cur] = False
+            backward(cur+1)
+    backward(0)
+    return best_clique,best_clique_n
+
+def evaluate(net,test_x_loader):
+    correct = 0
+    total = 0
+    total_output = None
+    # since we're not training, we don't need to calculate the gradients for our outputs
+    with torch.no_grad():
+        for data in test_x_loader:
+            images, labels = data
+            images = images.to(dev)
+            labels = labels.to(dev)
+            # calculate outputs by running images through the network
+            outputs = net(images)
+            if total_output is None:
+                total_output = outputs
+            else:
+                total_output = torch.cat((total_output,outputs),0)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+        acc = correct / total
+    return total_output,acc
+
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -108,37 +170,129 @@ if __name__ == "__main__":
         logger.info(f"---communicate round {i+1} start---")
 
         order = np.random.permutation(args['n_clients'])
-        
         clients_in_comm = ['client{}'.format(i) for i in order[0:n_participants]]
         logger.debug(f'selected clients {clients_in_comm}')
-        sum_parameters = None
-    
-        # local train every participant
-        for client in tqdm(clients_in_comm,unit='client',ncols=100):
-            local_parameters = cluster.clients_set[client].local_update(args['epoch'], args['batch_size'], net,
+
+        if args['aggregate'] == 0:
+            sum_parameters = None
+            for client in tqdm(clients_in_comm,unit='client',ncols=100):
+                local_param = cluster.clients_set[client].local_update(args['epoch'], args['batch_size'], net,
                                                                         loss_fn, opti, global_parameters)
-            if sum_parameters is None:
-                sum_parameters = {}
-                for key, var in local_parameters.items():
-                    sum_parameters[key] = var.clone()
+                if sum_parameters is None:
+                    sum_parameters = {}
+                    for key, var in local_param.items():
+                        sum_parameters[key] = var.clone()
+                else:
+                    for var in sum_parameters:
+                        sum_parameters[var] = sum_parameters[var] + local_param[var]
+            # use the average as the update global_parameters
+            for var in global_parameters:
+                global_parameters[var] = (sum_parameters[var] / n_participants)
+            net.load_state_dict(global_parameters, strict=True)
+            _,global_acc = evaluate(net, test_x_loader)
+            logger.info(f'accuracy: {global_acc}')
+            result_file.write(f"{i+1},{global_acc}\n")
+            
+            if (i + 1) % args['save_freq'] == 0:
+                torch.save(net, os.path.join(args['check_point_path'],
+                                            '{}_n_comm{}_E{}_B{}_lr{}_num_clients{}_cf{}'.format(args['model_name'],
+                                                                                                    i, args['epoch'],
+                                                                                                    args['batch_size'],
+                                                                                                    args['learning_rate'],
+                                                                                                    args['n_clients'],
+                                                                                                    args['c_fraction'])))
+                                                                            
+            continue
+
+
+
+        # local train every participant
+        ###############################################################
+        local_params = []
+        for client in tqdm(clients_in_comm,unit='client',ncols=100):
+            local_param = cluster.clients_set[client].local_update(args['epoch'], args['batch_size'], net,
+                                                                        loss_fn, opti, global_parameters)
+            local_params.append(copy.deepcopy(local_param))
+
+        ###############################################################
+        
+        # get all out(type tensor)
+        ###############################################################
+        outs = []
+        accs = []
+        for param in local_params :
+            net.load_state_dict(param,strict=True)
+            out,acc = evaluate(net,test_x_loader)
+            outs.append(out)
+            accs.append(acc)
+        # logger.debug(f"accs is {accs}")
+        ###############################################################
+
+        # get the distance
+        ###############################################################
+        dists = []
+        for i in range(len(outs)):
+            i_dists = []
+            for j in range(len(outs)):
+                dist =F.pairwise_distance(outs[i].reshape(-1),outs[j].reshape(-1),p=2).item()
+                i_dists.append(dist)
+            # print(i_dists)
+            dists.append(i_dists)
+        dists = np.array(dists)
+        # logger.debug(f'get the dist dist.shape{dists.shape}')
+        ###############################################################
+
+        # get the max clique whose size >= (n+1)/2
+        ###############################################################
+        stop = False
+        gama = 0.1
+        clique = []
+        clique_n = 0
+        logger.debug(f'dists.mean = {dists.mean()},std = {dists.std()}')
+        while not stop:
+            gama = gama * 2
+            edge_threshold = 0.5 * dists.mean() + gama * dists.std()
+            graph = dists <= edge_threshold
+            # print(dists)
+            # print(graph[:,0])
+            clique,clique_n = find_max_clique(graph)
+            if best_clique_n >= int(len(outs)+1)/2:
+                stop = True
+        logger.debug(f'get the max clique,clique_n is {clique_n},clique is {clique}.gama is {gama}')
+        ###############################################################
+
+        # aggregate the model
+        ###############################################################
+        aggregate_model = None
+        alpha = 1.0
+        beta = 0.1
+        denominator = clique_n * alpha + (n_participants - clique_n) * beta
+        props = []
+        for idx,param in enumerate(local_params):
+            prop = alpha if clique[idx] else beta
+            prop = prop / denominator
+            props.append(prop)
+            if aggregate_model is None:
+                aggregate_model = {}
+                for key, val in param.items():
+                    aggregate_model[key] = val.clone() * prop
             else:
-                for var in sum_parameters:
-                    sum_parameters[var] = sum_parameters[var] + local_parameters[var]
-        # use the average as the update global_parameters
-        for var in global_parameters:
-            global_parameters[var] = (sum_parameters[var] / n_participants)
+                for key in param:
+                    aggregate_model[key] += param[key] * prop
+        for key in global_parameters:
+            global_parameters[key] = copy.deepcopy(aggregate_model[key])
         net.load_state_dict(global_parameters, strict=True)
-        sum_accu = 0
-        num = 0
-        for test_x, test_y in test_x_loader:
-            # get batch test_x & batch test_y
-            test_x, test_y = test_x.to(dev), test_y.to(dev)
-            pred = net(test_x)
-            pred = torch.argmax(pred, dim=1)
-            sum_accu += (pred == test_y).float().mean()
-            num += 1
-        logger.info(f'accuracy: {sum_accu/num}')
-        result_file.write(f"round {i + 1} ,accuracy = {float(sum_accu / num)}\n")
+        # logger.debug(f'aggregate the model ,props is {props}')
+        display = []
+        for idx in range(n_participants):
+            info = ((order[idx]+1)%args['attack']==0,clique[idx],props[idx],accs[idx])
+            display.append(info)
+        logger.debug(f"-----info<is_attaker,in_the_clique,prop,acc>---------:\n{display}")
+        ###############################################################
+        _,global_acc = evaluate(net,test_x_loader)
+        logger.info(f'accuracy: {global_acc}')
+
+        result_file.write(f"{i+1},{global_acc}\n")
         
         if (i + 1) % args['save_freq'] == 0:
             torch.save(net, os.path.join(args['check_point_path'],

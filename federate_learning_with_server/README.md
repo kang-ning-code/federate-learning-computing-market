@@ -28,7 +28,7 @@ You are supposed to prepare the data set by yourself. MNIST can be downloaded on
 Run the code
 
 ```shell script
-python simulator.py -nc 100 -cf 0.1 -E 5 -B 10 -mn mnist_cnn  -ncomm 1000 -iid 1 -lr 0.01  -g 0 -at 1
+python simulator.py -nc 100 -cf 0.1 -E 5 -B 10 -mn mnist_cnn  -ncomm 1000 -iid 1 -lr 0.01  -g 0 -at 4 -ag 1
 ```
 
 which means there are 100 clients,  we randomly select 10 in each communicating round.  The data set are allocated in Non-IID way.  The epoch and batch size are set to 5 and 10. The learning rate is 0.01, we validate the codes every 20 rounds during the training, training stops after 1000 rounds. There are three models to do experiments: mnist_2nn mnist_cnn and cifar_cnn, and we choose mnist_cnn in this command. Notice the data set path when run the code of pytorch-version(you can take the source code out of the 'use_pytorch' folder). 

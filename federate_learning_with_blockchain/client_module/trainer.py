@@ -84,8 +84,7 @@ class Trainer(object):
                 num += 1
             running_loss /= num
             accuary = sum_accu/num
-            return accuary.item(),running_loss.item()
-    
+            return accuary.item(),running_loss.item()    
     def aggregate(self,update_models:list)->bytes:
         # [ (data_size_1,bytes_model_1) , .... , (data_size_n,bytes_model_n) ]
         if len(update_models) == 0:
