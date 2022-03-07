@@ -4,7 +4,7 @@ from client_module.trainer import Trainer,ModelInfo
 from client_module.ipfs_client import IPFSwrapper
 from client_module.log import logger as l
 import copy
-from typing import Dict, Tuple, Sequence
+from typing import Dict, Tuple, Sequence,List
 
 class MockClient(object):
     def __init__(self, setting):
@@ -15,12 +15,28 @@ class MockClient(object):
         self.ipfs = IPFSwrapper(setting)
         self.id = setting["id"]
 
+    def get_format_model_updates(self)->List[ModelInfo]:
+        update_info_list = self.invoker.get_model_updates()
+        model_infos = []
+        # get all update model from ipfs  with given model_hash
+        for update in update_info_list:
+            uploader = update['uploader']
+            train_size = update['train_size']
+            version = update['version']
+            bytes_model_hash = update['bytes_model_hash']
+            bytes_model = self.ipfs.get_bytes(bytes_model_hash)
+            model_info = ModelInfo(uploader, train_size, version, bytes_model,bytes_model_hash=bytes_model_hash)
+            model_infos.append(model_info)
+        return model_infos
+
+    def get_bytes_global_model(self)->bytes:
+        model_infos = self.get_format_model_updates()
+        bytes_model = self.trainer.aggregate(model_infos)
+        return bytes_model
+
     def flesh_global_model(self):
-        # get the lasted global model
-        bytes_model_hash, version = self.invoker.get_global_model_hash()
-        bytes_model = self.ipfs.get_bytes(bytes_model_hash)
+        bytes_model = self.get_bytes_global_model()
         self.trainer.load_bytes_model(bytes_model)
-        # l.info(f"client {self.id} flesh global model,version {version} ,hash {bytes_model_hash}")
 
     def local_train(self):
         l.info(f"client {self.id} start local training...")
@@ -57,6 +73,12 @@ class MockClient(object):
         aggreagate_model_hash = self.ipfs.add_bytes(bytes_aggregate_model)
         self.invoker.upload_aggregation_hash(aggreagate_model_hash)
         l.info(f"client {self.id} aggregate model and upload")
+
+    def evaluate(self, test_dl) -> Tuple[float,float]:
+        accuracy,loss,_ = self.trainer.evaluate(test_dl)
+        return accuracy,loss
+        
+
     # def approval(self):
     #     update_info_list = self.invoker.get_model_updates()
     #     model_infos = []
@@ -70,6 +92,5 @@ class MockClient(object):
     #         model_info = ModelInfo(uploader, train_size, version, bytes_model,bytes_model_hash=bytes_model_hash)
     #         model_infos.append(model_info)
     #     approvals = self.trainer.approval(model_infos)
-    def evaluate(self, test_dl) -> Tuple[float,float]:
-        accuracy,loss,_ = self.trainer.evaluate(test_dl)
-        return accuracy,loss
+
+

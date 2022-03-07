@@ -24,9 +24,9 @@ simulator_setting[
 simulator_setting['log_dir'] = os.path.join(simulator_setting['report_dir'], 'logs')
 simulator_setting['results_dir'] = os.path.join(simulator_setting['report_dir'], 'results')
 
-attacker_prop = 0.25
-# aggreagate_method = 'fed_avg'
-aggreagate_method = 'sniper'
+attacker_prop = 0.0
+aggreagate_method = 'fed_avg'
+# aggreagate_method = 'sniper'
 class ClusterSimulator(object):
 
     def __init__(self):
@@ -82,7 +82,7 @@ class ClusterSimulator(object):
             client.flesh_global_model()
 
     def clients_local_train(self, client_ids=None):
-        l.debug('[clients_local_train]')
+        l.info('[clients_local_train]')
         selected_clients = []
         if client_ids is None:
             selected_clients = self.clients
@@ -90,14 +90,14 @@ class ClusterSimulator(object):
             for c_id in client_ids:
                 selected_clients.append(self.clients[c_id])
         for client in selected_clients:
-            l.debug(
-                f"client {client.id} before train,model hash is {client.cur_model_hash()}")
+            # l.debug(
+            #     f"client {client.id} before train,model hash is {client.cur_model_hash()}")
             client.local_train()
             client.upload_model_update()
-            l.debug(
-                f"client {client.id} after train,model hash is {client.cur_model_hash()}")
+            # l.debug(
+            #     f"client {client.id} after train,model hash is {client.cur_model_hash()}")
 
-    def clients_local_evalute(self, client_ids=None) -> list:
+    def clients_local_evaluate(self, client_ids=None) -> list:
         l.info('[clients_local_evaluate]')
         selected_clients = []
         if client_ids is None:
@@ -115,20 +115,22 @@ class ClusterSimulator(object):
 
     def evaluate_global_model(self) -> Tuple[float,float]:
         l.info('[evaluate_global_model]')
+        self.clients[0].flesh_global_model()
         acc,loss = self.clients[0].evaluate(self.test_dl)
         l.info(f"round {self.round},accuracy {acc},loss {loss}")
         return acc,loss
 
-    def aggregate_and_upload_global_model(self):
-        l.info('[aggregate_and_upload_global_model]')
-        self.clients[0].aggregate_and_upload()
+    # def aggregate_and_upload_global_model(self):
+    #     l.info('[aggregate_and_upload_global_model]')
+    #     self.clients[0].aggregate_and_upload()
 
     def simulate_sequential(self, n=1):
         # loop n times
         # the first round should upload init model,specific handle
         if self.round == 0:
             l.info(f'--------{self.round}--------')
-            self.aggregate_and_upload_global_model()
+            self.clients[0].upload_model_update()
+            # evalute init model loss
             global_acc,global_loss = self.evaluate_global_model()
             round_result = [self.round, global_acc,global_loss] + [0 for _ in range(self.n_participators)]
             self.train_result.append(round_result)
@@ -140,11 +142,13 @@ class ClusterSimulator(object):
             order = np.random.permutation(len(self.clients))
             client_ids = order[0:self.n_participators]
             l.info(f'select clients:{client_ids}')
+            # participators flesh local model with global model
             self.flesh_clients_model(client_ids)
-            # self.clients_local_evalute(client_ids)
+            # participators start local training
             self.clients_local_train(client_ids)
-            local_acc = self.clients_local_evalute(client_ids)
-            self.aggregate_and_upload_global_model()
+            # evaluate local  models
+            local_acc = self.clients_local_evaluate(client_ids)
+            # evaluate global model
             global_acc ,global_loss= self.evaluate_global_model()
             round_result = [self.round, global_acc,global_loss] + local_acc
             self.train_result.append(round_result)
@@ -156,11 +160,12 @@ class ClusterSimulator(object):
                           dtype=float
                           )
         csv_name = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime(time.time())) + \
-                   '@npart{}_lr{}_bs{}_ep{}_{}.csv'.format(deploy_setting['n_participators'],
+                   '@npart{}_lr{}_bs{}_ep{}_{}_{}.csv'.format(deploy_setting['n_participators'],
                                                     deploy_setting['learning_rate'],
                                                     deploy_setting['batch_size'],
                                                     deploy_setting['epochs'],
-                                                    self.model_name)
+                                                    self.model_name,
+                                                    aggreagate_method)
         csv_path = os.path.join(simulator_setting['results_dir'],
                                 csv_name)
         df.to_csv(csv_path,index=False)

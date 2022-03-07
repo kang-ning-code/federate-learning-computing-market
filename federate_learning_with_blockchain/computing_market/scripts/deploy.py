@@ -7,7 +7,7 @@ deploy_setting = {
     "batch_size": 10,
     "learning_rate": "0.01",
     "epochs": 5,
-    "n_participators": 10,
+    "n_participators": 5,
 }
 
 

@@ -110,23 +110,24 @@ class Trainer(object):
             acc = correct / data_size
             return acc,running_loss,total_output
     
-    def approval(self,model_infos:List[ModelInfo])->List[int]:
-        n_participants = len(model_infos)
-        # get the outs and accs
-        accs = []
-        for m in model_infos:
-            self.model.load_state_dict(m.model_dict,strict=True)
-            acc,_,_=self.evaluate(self.test_dl)
-            accs.append(acc)
+    # def approval(self,model_infos:List[ModelInfo])->List[int]:
+    #     n_participants = len(model_infos)
+    #     # get the outs and accs
+    #     accs = []
+    #     for m in model_infos:
+    #         self.model.load_state_dict(m.model_dict,strict=True)
+    #         acc,_,_=self.evaluate(self.test_dl)
+    #         accs.append(acc)
 
-        args = np.argsort(accs[::-1])
+    #     args = np.argsort(accs[::-1])
        
-        approvals = [ 0 for _ in range(n_participants)]
-        n_approvals  = min(round(n_participants*0.6),n_participants-1)
-        for idx in args[:n_participants]:
-            approvals[idx] = 1
-        l.debug(f'accs is {accs},args is {args},approval is {approvals}')
-        return approvals 
+    #     approvals = [ 0 for _ in range(n_participants)]
+    #     n_approvals  = min(round(n_participants*0.6),n_participants-1)
+    #     for idx in args[:n_participants]:
+    #         approvals[idx] = 1
+    #     l.debug(f'accs is {accs},args is {args},approval is {approvals}')
+    #     return approvals 
+
     def aggregate(self,model_infos:List[ModelInfo])->bytes:
         if len(model_infos) == 0:
             return pickle.dumps(self.model.state_dict())
@@ -158,7 +159,7 @@ class Trainer(object):
                     average_params[k] = average_params[k] + model_info.model_dict[k] * fraction
         return average_params
 
-    # abandon this method
+    # deprecated
     def aggregate_sniper(self,model_infos:List[ModelInfo])->dict:
         
         # net = copy.deepcopy(self.model)
@@ -226,9 +227,6 @@ class Trainer(object):
         
         show_infos = []
         for idx in range(n_participants):
-            # show_info = (clique[idx],props[idx],accs[idx])
-            # show_infos.append(show_info)
-            # l.debug(f'info about sniper:<is_in_clique><prop><acc>:\n{show_infos}\n')
             l.debug(f'acc:{accs[idx]},selected:{clique[idx]},prop:{props[idx]}')
         return aggregate_param
       

@@ -10,17 +10,18 @@ contract ComputingMarket{
         uint version;
         string modelHash; // the model's ipfs file's hash 
     }
-    // global model parms 
-    struct GlobalModel{
-        string modelHash;
-        uint version;
-    }
+    // // global model parms 
+    // struct GlobalModel{
+    //     string modelHash;
+    //     uint version;
+    // }
     // snapshot at specific epoch 
     struct Snapshot{
-        GlobalModel globalModel; // generate by modelUpdates 
+        // GlobalModel globalModel; // generate by modelUpdates 
         address[] participators;
         mapping(address => ModelUpdate) modelUpdates;
         uint version;
+        bool locked; // if locked is true ,then can't update this snapshot
     }
     
     struct trainSetting{
@@ -63,37 +64,57 @@ contract ComputingMarket{
         return updates;
     }
 
-    // get all local update gradients for the lastest version
+    // get all  locked update model info for the lastest version
     function getModelUpdates() view public returns (ModelUpdate[]memory){
-        return getModelUpdates(curVersion);
-    }
+        if(snapshots[curVersion].locked){
+            return getModelUpdates(curVersion);
+        }else{
+            return getModelUpdates(curVersion-1);
+        }
+    } 
 
-    // get global model params for specific version
-    function getGlobalModel(uint _version) view public returns (GlobalModel memory){
-        require(_version <= curVersion,"invalid version");
-        Snapshot storage snapshot = snapshots[_version];
-        return snapshot.globalModel;
-    }
+    // // get global model params for specific version
+    // function getGlobalModel(uint _version) view public returns (GlobalModel memory){
+    //     require(_version <= curVersion,"invalid version");
+    //     Snapshot storage snapshot = snapshots[_version];
+    //     return snapshot.globalModel;
+    // }
 
-    // get global model params for the lastest version
-    function getGlobalModel() view public returns (GlobalModel memory){
-        return getGlobalModel(curVersion);
-    }
+    // // get global model params for the lastest version
+    // function getGlobalModel() view public returns (GlobalModel memory){
+    //     return getGlobalModel(curVersion);
+    // }
 
     // upload local training model
     function uploadModelUpdate(uint _version,uint _trainingSize,string memory _updateModelHash) public{
-        require(_version == curVersion,"update gradient is expired");
-        Snapshot storage snapshot = snapshots[_version];
+        require(_version >= curVersion,"update gradient is expired");
+        require(_version <= curVersion+1,"unexpected version");
+        // new version
+        // if(_version == curVersion+1){
+        //     // check wheather current snapshot is locked
+        //     require(snapshots[curVersion].locked,"current version's locak updates collected do not finished");
+        //     // update current version
+        //     curVersion ++;
+        //     snapshots[curVersion].version = curVersion;
+        // }
+        Snapshot storage snapshot = snapshots[curVersion];
         // new participator of current version
-        require(snapshot.participators.length < setting.nParticipator,"current version's local updates collected finished");
+        require(!snapshot.locked,"current version's local updates collected finished");
         if (snapshot.modelUpdates[msg.sender].uploader == address(0)){
             snapshot.participators.push(msg.sender);    
         }
-        emit UploadLocalUpdate(msg.sender, _version);
-        snapshot.modelUpdates[msg.sender] = ModelUpdate(msg.sender,_trainingSize,_version,_updateModelHash);
-        if (snapshot.participators.length == setting.nParticipator){
+        emit UploadLocalUpdate(msg.sender, curVersion);
+        snapshot.modelUpdates[msg.sender] = ModelUpdate(msg.sender,_trainingSize,curVersion,_updateModelHash);
+        if (snapshot.participators.length == setting.nParticipator ||
+            snapshot.version == 0 // for the init model
+            ){
             // current version's local updates collected finished , need to be aggregated
-            emit NeedAggregation(_version);
+            emit NeedAggregation(curVersion);
+            // lock current snapshot
+            snapshot.locked = true;
+            // create snasphot for new version
+            curVersion ++;
+            snapshots[curVersion].version = curVersion;
         }
     }
     
@@ -101,21 +122,21 @@ contract ComputingMarket{
         return uploadModelUpdate(curVersion, _trainingSize, _updateModelHash);
     }
 
-    // upload local aggregation (globalModel(version) + localUpdates(version) ---> globalModel(version+1))
-    function uploadAggregation(uint _version,string memory _globalModelHash) public {
-        // init the global model
-        if(curVersion == 0 && snapshots[curVersion].participators.length == 0){
-            snapshots[curVersion].globalModel = GlobalModel(_globalModelHash,_version);
-            return ;
-        }
-        require(_version == curVersion + 1,"invalid version");
-        curVersion ++;
-        snapshots[curVersion].globalModel = GlobalModel(_globalModelHash,_version);
-        emit GlobalModelUpdate(msg.sender, _version);
-    }
+    // // upload local aggregation (globalModel(version) + localUpdates(version) ---> globalModel(version+1))
+    // function uploadAggregation(uint _version,string memory _globalModelHash) public {
+    //     // init the global model
+    //     if(curVersion == 0 && snapshots[curVersion].participators.length == 0){
+    //         snapshots[curVersion].globalModel = GlobalModel(_globalModelHash,_version);
+    //         return ;
+    //     }
+    //     require(_version == curVersion + 1,"invalid version");
+    //     curVersion ++;
+    //     snapshots[curVersion].globalModel = GlobalModel(_globalModelHash,_version);
+    //     emit GlobalModelUpdate(msg.sender, _version);
+    // }
 
-    function uploadAggregation(string memory _globalModelHash) public{
-        return uploadAggregation(curVersion+1,_globalModelHash);
-    }
+    // function uploadAggregation(string memory _globalModelHash) public{
+    //     return uploadAggregation(curVersion+1,_globalModelHash);
+    // }
     
 }
