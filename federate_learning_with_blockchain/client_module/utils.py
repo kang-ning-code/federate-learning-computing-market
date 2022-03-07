@@ -4,6 +4,50 @@ import gzip
 import os
 import numpy as np
 import torch
+from typing import Dict, Tuple, Sequence
+
+def find_max_clique(graph)->Tuple[list,int]:
+    '''
+    find the max clique of graph,return the n_clique and clique(list of bool,if clique[i] = true means
+    the node_i is in the max clique)
+    '''
+    global n,best_clique,best_clique_n,cur_clique,cur_clique_n
+    n = graph.shape[0]
+    best_clique = [False for _ in range(n)]
+    best_clique_n = 0
+    cur_clique = [False for _ in range(n)]
+    cur_clique_n = 0
+    def can_place(t):
+        global cur_clique
+        for i in range(t):
+            if cur_clique[i] and (not graph[i][t]):
+                return False
+        return True
+
+    def backward(cur):
+        global cur_clique,cur_clique_n,best_clique,best_clique_n
+        if(cur >= n):
+            # record the best_result
+            for i in range(n):
+                best_clique[i] = cur_clique[i]
+            
+            best_clique_n = cur_clique_n
+            return 
+        # place into cur clique
+        if(can_place(cur)):
+            cur_clique[cur] = True
+            cur_clique_n = cur_clique_n +  1
+            backward(cur+1)
+            cur_clique_n = cur_clique_n - 1
+            cur_clique[cur] = False
+        # do not place into cur clique
+        if(cur_clique_n + n-1-cur>best_clique_n):
+            cur_clique[cur] = False
+            backward(cur+1)
+    backward(0)
+    return best_clique,best_clique_n
+
+
 def hex2bytes(hex_str):
     '''
     transfer hex_str(type HexStr) to bytes
@@ -49,16 +93,22 @@ def build_mnist_dataset(is_iid,dataset_dir):
         train_y = train_labels[order]
     return train_x,train_y,test_x,test_y
     
-def split_mnist_dataset(is_iid,dataset_dir,n_clients):
+def split_mnist_dataset(is_iid,dataset_dir,n_clients,attacker_prop = 0.0):
     train_x,train_y,test_x,test_y = build_mnist_dataset(is_iid,dataset_dir)
     # every client get 2 shard
     # 60000 // 100 // 2 = 600 // 2 = 300
     train_x_size = train_x.shape[0]
     shard_size = train_x_size// n_clients // 2
     # the id list of shard, every shard's size is [shard_size]
+    np.random.seed(24+125)
     shard_ids= np.random.permutation(train_x_size // shard_size)
     l.info(f"train_x_size:{train_x_size},shard_size:{shard_size},shard_ids.len:{len(shard_ids)}")
     split_dataset_tensor = {}
+    
+    n_attacker = min(int(attacker_prop * n_clients),n_clients-1)
+    arr = np.arange(n_clients)
+    attackers = np.random.choice(arr[1:],size = n_attacker)
+    l.info(f'exist attacker:{attackers}')
     for i in range(n_clients):
         first_id = shard_ids[i * 2]
         second_id = shard_ids[i * 2 + 1]
@@ -69,9 +119,17 @@ def split_mnist_dataset(is_iid,dataset_dir,n_clients):
         label_shards2 = train_y[second_id * shard_size: second_id * shard_size + shard_size]
         client_train_x, client_train_y = np.vstack((first_shard, second_shard)), np.vstack((label_shards1, label_shards2))
         client_train_y = np.argmax(client_train_y, axis=1)
+        # client i is the attacker
+        if i in attackers:
+            random_labels = np.random.permutation(test_y.shape[-1])
+            l.debug(f"for client{i}, before random,labers is {client_train_y[:10]},random is{ random_labels}")
+            client_train_y = np.array(list(map(lambda x:random_labels[x],client_train_y)))
+            l.debug(f"after random,labers is {client_train_y[:10]}")
         x_tensor ,y_tensor= torch.tensor(client_train_x),torch.tensor(client_train_y)
         if i == 0:
             l.info(f"splited_train_x_tensor.shape:{x_tensor.shape},splited_train_y_tensor.shape:{y_tensor.shape}")
+        
+
         split_dataset_tensor[i]=(x_tensor,y_tensor)
     test_x_tensor = torch.tensor(test_x)
     test_y_tensor = torch.argmax(torch.tensor(test_y), dim=1)

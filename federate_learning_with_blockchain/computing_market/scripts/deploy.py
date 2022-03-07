@@ -6,8 +6,8 @@ from brownie import ComputingMarket, accounts
 deploy_setting = {
     "batch_size": 10,
     "learning_rate": "0.01",
-    "epochs": 4,
-    "n_participators": 4,
+    "epochs": 5,
+    "n_participators": 10,
 }
 
 

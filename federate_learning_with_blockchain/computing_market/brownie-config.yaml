@@ -21,6 +21,7 @@ networks:
             gas_limit: 10000000001
             default_balance: "1000 ether"
             timeout: 6000
+            accounts: 100
     live:
         gas_limit: auto
         gas_buffer: 1.1

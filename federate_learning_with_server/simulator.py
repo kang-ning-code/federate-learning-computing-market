@@ -231,10 +231,10 @@ if __name__ == "__main__":
         # get the distance
         ###############################################################
         dists = []
-        for i in range(len(outs)):
+        for idx in range(len(outs)):
             i_dists = []
             for j in range(len(outs)):
-                dist =F.pairwise_distance(outs[i].reshape(-1),outs[j].reshape(-1),p=2).item()
+                dist =F.pairwise_distance(outs[idx].reshape(-1),outs[j].reshape(-1),p=2).item()
                 i_dists.append(dist)
             # print(i_dists)
             dists.append(i_dists)

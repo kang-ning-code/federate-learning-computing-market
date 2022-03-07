@@ -1,6 +1,6 @@
 from turtle import update
 from client_module.invoker import MockInvoker
-from client_module.trainer import Trainer
+from client_module.trainer import Trainer,ModelInfo
 from client_module.ipfs_client import IPFSwrapper
 from client_module.log import logger as l
 import copy
@@ -20,7 +20,7 @@ class MockClient(object):
         bytes_model_hash, version = self.invoker.get_global_model_hash()
         bytes_model = self.ipfs.get_bytes(bytes_model_hash)
         self.trainer.load_bytes_model(bytes_model)
-        l.info(f"client {self.id} flesh global model,version {version} ,hash {bytes_model_hash}")
+        # l.info(f"client {self.id} flesh global model,version {version} ,hash {bytes_model_hash}")
 
     def local_train(self):
         l.info(f"client {self.id} start local training...")
@@ -41,20 +41,35 @@ class MockClient(object):
 
     def aggregate_and_upload(self):
         update_info_list = self.invoker.get_model_updates()
-        format_info_list = []
+        model_infos = []
         # get all update model from ipfs  with given model_hash
         for update in update_info_list:
-            model_hash = update['bytes_model_hash']
-            bytes_model = self.ipfs.get_bytes(model_hash)
-            update['bytes_model'] = bytes_model
-            format_info_list.append(update)
-        bytes_aggregate_model = self.trainer.aggregate(format_info_list)
+            uploader = update['uploader']
+            train_size = update['train_size']
+            version = update['version']
+            bytes_model_hash = update['bytes_model_hash']
+            bytes_model = self.ipfs.get_bytes(bytes_model_hash)
+            model_info = ModelInfo(uploader, train_size, version, bytes_model,bytes_model_hash=bytes_model_hash)
+            model_infos.append(model_info)
+        bytes_aggregate_model = self.trainer.aggregate(model_infos)
         self.trainer.load_bytes_model(bytes_aggregate_model)
         l.info(f"client {self.id} aggregate model finish")
         aggreagate_model_hash = self.ipfs.add_bytes(bytes_aggregate_model)
         self.invoker.upload_aggregation_hash(aggreagate_model_hash)
         l.info(f"client {self.id} aggregate model and upload")
-
+    # def approval(self):
+    #     update_info_list = self.invoker.get_model_updates()
+    #     model_infos = []
+    #     # get all update model from ipfs  with given model_hash
+    #     for update in update_info_list:
+    #         uploader = update['uploader']
+    #         train_size = update['train_size']
+    #         version = update['version']
+    #         bytes_model_hash = update['bytes_model_hash']
+    #         bytes_model = self.ipfs.get_bytes(bytes_model_hash)
+    #         model_info = ModelInfo(uploader, train_size, version, bytes_model,bytes_model_hash=bytes_model_hash)
+    #         model_infos.append(model_info)
+    #     approvals = self.trainer.approval(model_infos)
     def evaluate(self, test_dl) -> Tuple[float,float]:
-        accuracy,loss = self.trainer.evaluate(test_dl)
+        accuracy,loss,_ = self.trainer.evaluate(test_dl)
         return accuracy,loss

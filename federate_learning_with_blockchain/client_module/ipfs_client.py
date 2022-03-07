@@ -11,7 +11,7 @@ class IPFSwrapper:
     def get_bytes(self,hash_code):
         resp = self.client.cat(hash_code)
         assert isinstance(resp, bytes)
-        l.debug(f'get bytes with hash {hash_code},bytes\' len is {len(resp)}')
+      #   l.debug(f'get bytes with hash {hash_code},bytes\' len is {len(resp)}')
         return resp
 
     def add_bytes(self,data):

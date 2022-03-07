@@ -24,15 +24,17 @@ simulator_setting[
 simulator_setting['log_dir'] = os.path.join(simulator_setting['report_dir'], 'logs')
 simulator_setting['results_dir'] = os.path.join(simulator_setting['report_dir'], 'results')
 
-
+attacker_prop = 0.25
+# aggreagate_method = 'fed_avg'
+aggreagate_method = 'sniper'
 class ClusterSimulator(object):
 
     def __init__(self):
         log_dir = simulator_setting['log_dir']
-        init_logging(log_dir, log_level=logging.INFO)
+        init_logging(log_dir, log_level=logging.DEBUG)
         dataset_dir = simulator_setting['dataset_dir']
         client_train_dataset, test_x_tensor, test_y_tensor = u.split_mnist_dataset(
-            True, dataset_dir, len(accounts))
+            True, dataset_dir, len(accounts),attacker_prop=attacker_prop)
         self.accounts = accounts
 
         self.test_dl = DataLoader(TensorDataset(
@@ -51,17 +53,19 @@ class ClusterSimulator(object):
         self.model_name = "mnist_2nn"
         self.clients = []
         for id in range(len(self.accounts)):
-            costume_setting = copy.deepcopy(self.client_setting)
-            costume_setting["model_name"] = self.model_name
-            costume_setting["ipfs_api"] = "/ip4/127.0.0.1/tcp/5001"
+            custume_setting = copy.deepcopy(self.client_setting)
+            custume_setting["model_name"] = self.model_name
+            custume_setting['aggreagate_method'] = aggreagate_method
+            custume_setting["ipfs_api"] = "/ip4/127.0.0.1/tcp/5001"
             train_x_tensor, train_y_tensor = client_train_dataset[id]
-            costume_setting["dataset"] = TensorDataset(
+            custume_setting["dataset"] = TensorDataset(
                 train_x_tensor, train_y_tensor)
-            costume_setting["id"] = id
-            costume_setting["account"] = self.accounts[id]
-            costume_setting["contract"] = self.contract
-            new_client = MockClient(costume_setting)
-            del costume_setting
+            custume_setting["id"] = id
+            custume_setting["account"] = self.accounts[id]
+            custume_setting["contract"] = self.contract
+            
+            new_client = MockClient(custume_setting)
+            del custume_setting
             self.clients.append(new_client)
             l.info(f"build client {id} success")
         l.info(f"build {len(self.accounts)} clients finish")

@@ -45,6 +45,8 @@ class MockInvoker(object):
             format_model_updates.append(model_info)
         return format_model_updates
 
+    def approval(self,approvals):
+        pass
     def upload_aggregation_hash(self,aggregated_model_hash):
         assert isinstance(aggregated_model_hash,str)
         self.contract.uploadAggregation(aggregated_model_hash,{"from":self.account,"gas_limit":1000000000})
