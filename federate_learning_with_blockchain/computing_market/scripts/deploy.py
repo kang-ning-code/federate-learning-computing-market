@@ -6,8 +6,10 @@ from brownie import ComputingMarket, accounts
 deploy_setting = {
     "batch_size": 10,
     "learning_rate": "0.01",
-    "epochs": 5,
-    "n_participators": 5,
+    "epochs": 3,
+    "n_participator": 5,
+    "model_name":"mnist_cnn",
+    "n_vote":3,
 }
 
 

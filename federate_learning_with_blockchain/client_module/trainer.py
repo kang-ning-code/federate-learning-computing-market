@@ -13,13 +13,13 @@ from client_module.utils import find_max_clique
 from typing import Dict,Tuple,List
 
 class ModelInfo(object):
-    def __init__(self,uploader:str,train_size:int,version:int,bytes_model:bytes,bytes_model_hash=None):
+    def __init__(self,uploader:str,train_size:int,version:int,bytes_model:bytes,poll=1,bytes_model_hash=None):
         self.uploader = uploader
         self.train_size = train_size
         self.version = version
         self.bytes_model = model
         self.bytes_model_hash = bytes_model_hash
-        
+        self.poll = poll
         self.model_dict = pickle.loads(bytes_model)
            
 class Trainer(object):
@@ -29,6 +29,8 @@ class Trainer(object):
         # training setting
         self.epochs = train_setting['epochs']
         self.batch_size = train_setting['batch_size']
+        self.n_vote = train_setting['n_vote']
+        self.n_participators = train_setting['n_participator']
         self.model_name = train_setting['model_name']
         self.learning_rate = float(train_setting['learning_rate'])
         self.train_ds = train_setting['dataset']
@@ -93,9 +95,10 @@ class Trainer(object):
             for data in test_dl:
                 test_x, test_y = data
                 test_x = test_x.to(self.dev)
-                test_y = test_y.to(self.dev)
+                test_y = test_y.to(self.dev).long()
                 # calculate outputs by running test_x through the network
                 outputs = self.model(test_x)
+
                 loss = self.loss_fn(outputs,test_y)
                 running_loss += loss
                 if return_output:
@@ -110,31 +113,34 @@ class Trainer(object):
             acc = correct / data_size
             return acc,running_loss,total_output
     
-    # def approval(self,model_infos:List[ModelInfo])->List[int]:
-    #     n_participants = len(model_infos)
-    #     # get the outs and accs
-    #     accs = []
-    #     for m in model_infos:
-    #         self.model.load_state_dict(m.model_dict,strict=True)
-    #         acc,_,_=self.evaluate(self.test_dl)
-    #         accs.append(acc)
+    def get_vote_for_list(self,model_infos:List[ModelInfo])->List[str]:
+        # get the outs and accs
+        accs = []
+        for m in model_infos:
+            self.model.load_state_dict(m.model_dict,strict=True)
+            acc,_,_=self.evaluate(self.test_dl)
+            accs.append(acc)
 
-    #     args = np.argsort(accs[::-1])
-       
-    #     approvals = [ 0 for _ in range(n_participants)]
-    #     n_approvals  = min(round(n_participants*0.6),n_participants-1)
-    #     for idx in args[:n_participants]:
-    #         approvals[idx] = 1
-    #     l.debug(f'accs is {accs},args is {args},approval is {approvals}')
-    #     return approvals 
+        args = np.argsort(accs)[::-1][:self.n_vote]
+        l.debug(f'accs in current model is {accs},choice idx is {args}')
+        candicates = []
+        for idx in args:
+            candicates.append(model_infos[idx].uploader)
+        return candicates
 
     def aggregate(self,model_infos:List[ModelInfo])->bytes:
         if len(model_infos) == 0:
             return pickle.dumps(self.model.state_dict())
+            
         aggregate_param = None
-        if self.aggregate_method == 'sniper':
+        if len(model_infos) == 1:
+            aggregate_param =  model_infos[0].model_dict
+        elif self.aggregate_method == 'sniper':
             l.info("use sniper to aggregate")
             aggregate_param = self.aggregate_sniper(model_infos)
+        elif self.aggregate_method =='fed_vote_avg':
+            l.info("use fed_vote_avg to aggregate")
+            aggregate_param = self.aggregate_fed_vote_avg(model_infos)
         else:
             l.info("use fed_avg to aggregate")
             aggregate_param = self.aggregate_fed_avg(model_infos)
@@ -150,6 +156,23 @@ class Trainer(object):
         for model_info in model_infos:
             fraction = model_info.train_size / all_data_size
             l.debug(f'fraction of uploader {model_info.uploader} is {fraction},data_size is {model_info.train_size}')
+            if average_params is None:
+                average_params = {}
+                for k,v in  model_info.model_dict.items():
+                    average_params[k] = v.clone() * fraction
+            else:
+                for k in average_params:
+                    average_params[k] = average_params[k] + model_info.model_dict[k] * fraction
+        return average_params
+
+    def aggregate_fed_vote_avg(self,model_infos:List[ModelInfo])->dict:
+        average_params = None
+        denominator = 0
+        for model_info in model_infos:
+            denominator += model_info.train_size * model_info.poll
+        for model_info in model_infos:
+            fraction = model_info.train_size*model_info.poll / denominator
+            l.debug(f'fraction of uploader {model_info.uploader} is {fraction},data_size is {model_info.train_size},poll is {model_info.poll}')
             if average_params is None:
                 average_params = {}
                 for k,v in  model_info.model_dict.items():

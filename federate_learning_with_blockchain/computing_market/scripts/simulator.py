@@ -24,7 +24,7 @@ simulator_setting[
 simulator_setting['log_dir'] = os.path.join(simulator_setting['report_dir'], 'logs')
 simulator_setting['results_dir'] = os.path.join(simulator_setting['report_dir'], 'results')
 
-attacker_prop = 0.0
+attacker_prop = 0.2
 aggreagate_method = 'fed_avg'
 # aggreagate_method = 'sniper'
 class ClusterSimulator(object):
@@ -49,8 +49,9 @@ class ClusterSimulator(object):
 
         self.client_setting = copy.deepcopy(deploy_setting)
         self.n_clients = len(self.accounts)
-        self.n_participators = deploy_setting['n_participators']
-        self.model_name = "mnist_2nn"
+        self.n_participators = deploy_setting['n_participator']
+        self.n_vote = deploy_setting['n_vote']
+        self.model_name = deploy_setting['model_name']
         self.clients = []
         for id in range(len(self.accounts)):
             custume_setting = copy.deepcopy(self.client_setting)
@@ -120,16 +121,23 @@ class ClusterSimulator(object):
         l.info(f"round {self.round},accuracy {acc},loss {loss}")
         return acc,loss
 
-    # def aggregate_and_upload_global_model(self):
-    #     l.info('[aggregate_and_upload_global_model]')
-    #     self.clients[0].aggregate_and_upload()
+    def client_vote(self,client_ids= None):
+        l.info('[client vote]')
+        selected_clients = []
+        if client_ids is None:
+            selected_clients = self.clients
+        else:
+            for c_id in client_ids:
+                selected_clients.append(self.clients[c_id])
+        for client in selected_clients:
+            client.vote()
 
     def simulate_sequential(self, n=1):
         # loop n times
         # the first round should upload init model,specific handle
         if self.round == 0:
             l.info(f'--------{self.round}--------')
-            self.clients[0].upload_model_update()
+            self.clients[0].init_model()
             # evalute init model loss
             global_acc,global_loss = self.evaluate_global_model()
             round_result = [self.round, global_acc,global_loss] + [0 for _ in range(self.n_participators)]
@@ -144,10 +152,13 @@ class ClusterSimulator(object):
             l.info(f'select clients:{client_ids}')
             # participators flesh local model with global model
             self.flesh_clients_model(client_ids)
+            # self.clients_local_evaluate(client_ids)
             # participators start local training
             self.clients_local_train(client_ids)
             # evaluate local  models
             local_acc = self.clients_local_evaluate(client_ids)
+            # vote
+            self.client_vote(client_ids)
             # evaluate global model
             global_acc ,global_loss= self.evaluate_global_model()
             round_result = [self.round, global_acc,global_loss] + local_acc
@@ -160,7 +171,7 @@ class ClusterSimulator(object):
                           dtype=float
                           )
         csv_name = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime(time.time())) + \
-                   '@npart{}_lr{}_bs{}_ep{}_{}_{}.csv'.format(deploy_setting['n_participators'],
+                   '@npart{}_lr{}_bs{}_ep{}_{}_{}.csv'.format(deploy_setting['n_participator'],
                                                     deploy_setting['learning_rate'],
                                                     deploy_setting['batch_size'],
                                                     deploy_setting['epochs'],

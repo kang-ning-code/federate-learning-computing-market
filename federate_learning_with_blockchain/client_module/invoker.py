@@ -25,6 +25,8 @@ class MockInvoker(object):
             'nParticipators':setting_list[3],
         }
         return setting_map
+    def init_model(self,init_model_hash):
+        self.contract.initModel(init_model_hash,{"from":self.account})
 
     def get_global_model_hash(self):
         bytes_model_param_hash,lastestVersion = self.contract.getGlobalModel({"from":self.account})
@@ -41,13 +43,15 @@ class MockInvoker(object):
                 "train_size":model_update[1],
                 "version":model_update[2],
                 "bytes_model_hash":model_update[3],
+                "poll":model_update[4],
             }
             format_model_updates.append(model_info)
         return format_model_updates
 
-    def approval(self,approvals):
-        pass
-    
+    def vote(self,candidates):
+        self.contract.vote(candidates,{"from":self.account})
+
+
     def upload_aggregation_hash(self,aggregated_model_hash):
         assert isinstance(aggregated_model_hash,str)
         self.contract.uploadAggregation(aggregated_model_hash,{"from":self.account,"gas_limit":1000000000})

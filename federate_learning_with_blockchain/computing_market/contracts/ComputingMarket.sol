@@ -1,7 +1,7 @@
 pragma solidity ^0.8.11;
 
 // SPDX-License-Identifier: MIT
-contract ComputingMarket{
+contract ComputingMarket {
      
     // model's update uploader by local trainer (local update model)
     struct ModelUpdate{
@@ -9,46 +9,63 @@ contract ComputingMarket{
         uint trainSize; // the size of training data
         uint version;
         string modelHash; // the model's ipfs file's hash 
+        uint poll; // the number of votes this model get
     }
-    // // global model parms 
-    // struct GlobalModel{
-    //     string modelHash;
-    //     uint version;
-    // }
+    struct ParticipatorInfo{
+        address participator;
+        bool hasVoted;
+        address[] votes;
+        ModelUpdate updateInfo;
+    }
     // snapshot at specific epoch 
     struct Snapshot{
-        // GlobalModel globalModel; // generate by modelUpdates 
         address[] participators;
-        mapping(address => ModelUpdate) modelUpdates;
+        mapping(address => ParticipatorInfo)infos;
         uint version;
-        bool locked; // if locked is true ,then can't update this snapshot
+        uint hasVoted;
+        bool locked; // if locked is true ,then can't update updateInfos
+        bool voteFinished; // if voteFinished is true, then current snapshot is finished,can't update again
     }
     
-    struct trainSetting{
+    struct TrainSetting{
         uint batchSize; // local training batch size
         string learningRate; // local training learning rate (float)
         uint epochs; // local training epoch step
         uint nParticipator; // the number of client participate in one global model update
+        string modelName; // the training model name
+        uint nVote; // the max number of votes for one participator
     }
-
     address public publisher;
     string public modelName;
     uint public curVersion;
     // global setting of training
-    trainSetting public setting;
+    TrainSetting public setting;
     // version => snapshot with given version
     mapping(uint => Snapshot) snapshots;
-
+    // use to record the contribution
+    mapping(address => uint) public contributions;
 
     event UploadLocalUpdate(address _uploader,uint _version);
     event NeedAggregation(uint _version);
-    event GlobalModelUpdate(address _uploader,uint _version);
+    event NeedVote(uint _version);
+    // event GlobalModelUpdate(address _uploader,uint _version);
 
-    constructor(string memory _modelName,trainSetting memory _setting) {
+    constructor(string memory _modelName,TrainSetting memory _setting) {
         publisher = msg.sender;
         curVersion = 0;
         modelName = _modelName;
         setting = _setting;
+    }
+
+    // check wheater the lastest version exist participator
+    function exist(address participator) internal view returns (bool){
+        Snapshot storage snapshot = snapshots[curVersion];
+        for(uint i=0;i<snapshot.participators.length;i++){
+            if(participator == snapshot.participators[i]){
+                return true;
+            }
+        }
+        return false;
     }
 
     // get all update models (local training) within specific version
@@ -56,10 +73,9 @@ contract ComputingMarket{
         require(_version <= curVersion,"invalid version");
         Snapshot storage snapshot = snapshots[_version];
         ModelUpdate[] memory updates = new ModelUpdate[](snapshot.participators.length);
-        address participator;
         for(uint i=0;i< snapshot.participators.length; i++){
-            participator = snapshot.participators[i];
-            updates[i] = snapshot.modelUpdates[participator];
+            address participator = snapshot.participators[i];
+            updates[i] = snapshot.infos[participator].updateInfo;
         }
         return updates;
     }
@@ -73,70 +89,72 @@ contract ComputingMarket{
         }
     } 
 
-    // // get global model params for specific version
-    // function getGlobalModel(uint _version) view public returns (GlobalModel memory){
-    //     require(_version <= curVersion,"invalid version");
-    //     Snapshot storage snapshot = snapshots[_version];
-    //     return snapshot.globalModel;
-    // }
-
-    // // get global model params for the lastest version
-    // function getGlobalModel() view public returns (GlobalModel memory){
-    //     return getGlobalModel(curVersion);
-    // }
-
     // upload local training model
-    function uploadModelUpdate(uint _version,uint _trainingSize,string memory _updateModelHash) public{
-        require(_version >= curVersion,"update gradient is expired");
-        require(_version <= curVersion+1,"unexpected version");
-        // new version
-        // if(_version == curVersion+1){
-        //     // check wheather current snapshot is locked
-        //     require(snapshots[curVersion].locked,"current version's locak updates collected do not finished");
-        //     // update current version
-        //     curVersion ++;
-        //     snapshots[curVersion].version = curVersion;
-        // }
+    function uploadModelUpdate(uint _version,uint _trainingSize,string memory _updateModelHash) public returns (bool){
+        require(_version == curVersion,"unexpected version");
         Snapshot storage snapshot = snapshots[curVersion];
         // new participator of current version
         require(!snapshot.locked,"current version's local updates collected finished");
-        if (snapshot.modelUpdates[msg.sender].uploader == address(0)){
+        if (!exist(msg.sender)){
             snapshot.participators.push(msg.sender);    
         }
         emit UploadLocalUpdate(msg.sender, curVersion);
-        snapshot.modelUpdates[msg.sender] = ModelUpdate(msg.sender,_trainingSize,curVersion,_updateModelHash);
-        if (snapshot.participators.length == setting.nParticipator ||
+        snapshot.infos[msg.sender].updateInfo = ModelUpdate(msg.sender,_trainingSize,curVersion,_updateModelHash,1);
+       // training info collect finished
+        if(snapshot.participators.length == setting.nParticipator || curVersion == 0){
+            snapshot.locked = true;
+            emit NeedVote(curVersion);
+        }
+        return true;
+    }
+    
+    function uploadModelUpdate(uint _trainingSize,string memory _updateModelHash) public returns (bool){
+        return uploadModelUpdate(curVersion, _trainingSize, _updateModelHash);
+    }
+
+    function initModel(string memory _initModelHash) public returns (bool){
+        require(curVersion == 0,"model has been inited");
+        uploadModelUpdate(0,_initModelHash);
+        address[] memory votes;
+        vote(votes);
+        return true;
+    }
+
+    function vote(address[] memory _votes,uint _version) public returns (bool){
+        require(_votes.length <= setting.nVote,"too many voters");
+        require(_version == curVersion,"unexpected version");
+        Snapshot storage snapshot = snapshots[curVersion];
+        require(snapshot.locked,"current version's local updates collected do not finished");
+        require(exist(msg.sender),"only participators can approval");
+        ParticipatorInfo storage info = snapshot.infos[msg.sender];
+        require(!info.hasVoted,"this participator has voted before");
+        for(uint i=0;i<_votes.length;i++){
+            require(exist(_votes[i]),"candicate do no exist");
+        }
+        //record the vote
+        snapshot.infos[msg.sender].votes = _votes;
+        snapshot.hasVoted ++ ;
+        if (snapshot.hasVoted == setting.nParticipator ||
             snapshot.version == 0 // for the init model
             ){
             // current version's local updates collected finished , need to be aggregated
             emit NeedAggregation(curVersion);
-            // lock current snapshot
-            snapshot.locked = true;
+            snapshot.voteFinished = true;
             // create snasphot for new version
+            // update the poll for every update model info
+            for(uint i=0;i<snapshot.participators.length;i++){
+                address voter = snapshot.participators[i];
+                for(uint j=0;j<snapshot.infos[voter].votes.length;j++){
+                    address candicate = snapshot.infos[voter].votes[j];
+                    snapshot.infos[candicate].updateInfo.poll++;
+                }
+            }
             curVersion ++;
             snapshots[curVersion].version = curVersion;
         }
+        return true;
     }
-    
-    function uploadModelUpdate(uint _trainingSize,string memory _updateModelHash) public{
-        return uploadModelUpdate(curVersion, _trainingSize, _updateModelHash);
-    }
-
-    // // upload local aggregation (globalModel(version) + localUpdates(version) ---> globalModel(version+1))
-    // function uploadAggregation(uint _version,string memory _globalModelHash) public {
-    //     // init the global model
-    //     if(curVersion == 0 && snapshots[curVersion].participators.length == 0){
-    //         snapshots[curVersion].globalModel = GlobalModel(_globalModelHash,_version);
-    //         return ;
-    //     }
-    //     require(_version == curVersion + 1,"invalid version");
-    //     curVersion ++;
-    //     snapshots[curVersion].globalModel = GlobalModel(_globalModelHash,_version);
-    //     emit GlobalModelUpdate(msg.sender, _version);
-    // }
-
-    // function uploadAggregation(string memory _globalModelHash) public{
-    //     return uploadAggregation(curVersion+1,_globalModelHash);
-    // }
-    
+     function vote(address[] memory _votes) public returns (bool){
+         return vote(_votes,curVersion);
+     }
 }

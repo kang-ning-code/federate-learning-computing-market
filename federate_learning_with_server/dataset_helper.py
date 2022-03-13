@@ -1,10 +1,47 @@
 import numpy as np
 import gzip
 import os
+import torch
 import torchvision
-from torchvision import transforms as transforms
+from torch.utils.data import DataLoader
+from torchvision.transforms import transforms
 from log import  logger
+from typing import Tuple
 
+def get_MNIST_data():
+    transformer =transforms.Compose(
+    [transforms.ToTensor(),
+     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    trainset = torchvision.datasets.MNIST('./data',train=True,download=True,transform=transformer)
+    testset = torchvision.datasets.MNIST('./data',train=False,download=True,transform=transformer)
+    # train_loader = DataLoader(trainset,batch_size=batch_size,shuffle=True,num_workers=2)
+    # test_loader = DataLoader(testset,batch_size=batch_size,shuffle=True,num_workers=2)
+    train_data = trainset.data.numpy()
+    test_data = testset.data.numpy()
+    train_label = trainset.targets.numpy()
+    test_label = testset.targets.numpy()
+
+    train_data = train_data.reshape(train_data.shape[0],-1)
+    test_data = test_data.reshape(test_data.shape[0],-1)
+
+    train_data = train_data.astype(np.float32)
+    train_data = np.multiply(train_data, 1.0 / 255.0)
+
+    test_data = test_data.astype(np.float32)
+    test_data = np.multiply(test_data,1.0/255.0)
+    
+    return train_data,train_label,test_data,test_label
+
+class DatasetLoader(object):
+    def __init__(self,dataset_name='MNIST',is_iid = True,n_client = 10,batch_size = 5):
+        self.dataset_name = dataset_name
+        self.is_iid= is_iid
+        self.n_client = n_client
+        self.batch_size = batch_size
+        self.train_loader = None
+        self.tset_loader = None
+        if dataset_name == 'MNIST':
+            train_loader,test_loader = get_MNIST_loader(self.batch_size)
 
 class DatasetHelper(object):
     def __init__(self, dataSetName, is_IID):
@@ -24,7 +61,6 @@ class DatasetHelper(object):
             self.construct_cifar10_dataset(is_IID)
         else:
             pass
-
     # mnistDataSetConstruct
     def construct_mnist_dataset(self, is_IID):
         '''
