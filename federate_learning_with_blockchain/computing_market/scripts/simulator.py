@@ -25,7 +25,7 @@ simulator_setting['log_dir'] = os.path.join(simulator_setting['report_dir'], 'lo
 simulator_setting['results_dir'] = os.path.join(simulator_setting['report_dir'], 'results')
 
 attacker_prop = 0.2
-aggreagate_method = 'fed_avg'
+aggreagate_method = 'fed_vote_avg'
 # aggreagate_method = 'sniper'
 class ClusterSimulator(object):
 

@@ -33,7 +33,7 @@ contract ComputingMarket {
         uint epochs; // local training epoch step
         uint nParticipator; // the number of client participate in one global model update
         string modelName; // the training model name
-        uint nVote; // the max number of votes for one participator
+        uint nPoll; // the max number of votes for one participator
     }
     address public publisher;
     string public modelName;
@@ -121,7 +121,7 @@ contract ComputingMarket {
     }
 
     function vote(address[] memory _votes,uint _version) public returns (bool){
-        require(_votes.length <= setting.nVote,"too many voters");
+        require(_votes.length <= setting.nPoll,"too many voters");
         require(_version == curVersion,"unexpected version");
         Snapshot storage snapshot = snapshots[curVersion];
         require(snapshot.locked,"current version's local updates collected do not finished");
@@ -143,11 +143,17 @@ contract ComputingMarket {
             // create snasphot for new version
             // update the poll for every update model info
             for(uint i=0;i<snapshot.participators.length;i++){
-                address voter = snapshot.participators[i];
-                for(uint j=0;j<snapshot.infos[voter].votes.length;j++){
-                    address candicate = snapshot.infos[voter].votes[j];
+                address candidate = snapshot.participators[i];
+                for(uint j=0;j<snapshot.infos[candidate].votes.length;j++){
+                    address candicate = snapshot.infos[candidate].votes[j];
                     snapshot.infos[candicate].updateInfo.poll++;
                 }
+            }
+            // update the contributions
+            for(uint i=0;i<snapshot.participators.length;i++){
+                address participator = snapshot.participators[i];
+                ModelUpdate storage information = snapshot.infos[participator].updateInfo;
+                contributions[participator] += (information.poll) * (information.trainSize);
             }
             curVersion ++;
             snapshots[curVersion].version = curVersion;

@@ -168,10 +168,12 @@ class Trainer(object):
     def aggregate_fed_vote_avg(self,model_infos:List[ModelInfo])->dict:
         average_params = None
         denominator = 0
+        def sigmoid(z):
+            return 1 / (1 + math.exp(-z))
         for model_info in model_infos:
-            denominator += model_info.train_size * model_info.poll
+            denominator += model_info.train_size * sigmoid(model_info.poll -self.n_vote)
         for model_info in model_infos:
-            fraction = model_info.train_size*model_info.poll / denominator
+            fraction = model_info.train_size * sigmoid(model_info.poll -self.n_vote) / denominator
             l.debug(f'fraction of uploader {model_info.uploader} is {fraction},data_size is {model_info.train_size},poll is {model_info.poll}')
             if average_params is None:
                 average_params = {}

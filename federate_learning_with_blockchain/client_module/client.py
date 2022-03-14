@@ -1,7 +1,7 @@
 from turtle import update
 from client_module.invoker import MockInvoker
 from client_module.trainer import Trainer,ModelInfo
-from client_module.ipfs_client import IPFSwrapper
+from client_module.ipfs_client import IPFSwrapper,MockIPFSWrapper
 from client_module.log import logger as l
 import copy
 from typing import Dict, Tuple, Sequence,List
@@ -12,7 +12,8 @@ class MockClient(object):
         assert isinstance(setting, dict)
         self.invoker = MockInvoker(setting)
         self.trainer = Trainer(setting)
-        self.ipfs = IPFSwrapper(setting)
+        # self.ipfs = IPFSwrapper(setting)
+        self.ipfs = MockIPFSWrapper(setting)
         self.id = setting["id"]
 
     def get_format_model_updates(self)->List[ModelInfo]:

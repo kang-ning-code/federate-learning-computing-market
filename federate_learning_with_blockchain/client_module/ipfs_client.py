@@ -1,6 +1,8 @@
 import ipfshttpclient
+import hashlib
+import time
 from client_module.log import logger as l
-
+from cacheout import Cache
 class IPFSwrapper:
     
     def __init__(self,setting)->None:
@@ -22,6 +24,32 @@ class IPFSwrapper:
 
     def close(self)->None:
         self.client.close()
+
+local_cache = Cache(maxsize=100)
+class MockIPFSWrapper:
+
+    def __init__(self,setting)->None:
+        pass
+    
+    def get_hash(self,bytes_input):
+        hash = hashlib.md5()
+        hash.update(bytes_input)
+        hash.update(bytes(str(time.time()),encoding="utf-8"))
+        hex_str = hash.hexdigest()
+        return hex_str
+
+    def add_bytes(self,data):
+        hex_str = self.get_hash(data)
+        local_cache.add(hex_str,data)
+        l.debug(f'upload file ,get hex_Str {hex_str}')
+        return hex_str
+
+    def get_bytes(self,hex_str):
+        l.debug(f'get bytes with hex_str {hex_str}')
+        data = local_cache.get(hex_str)
+        assert not data is None
+        
+        return data
 
 if __name__ == "__main__":
     wrapper = IPFSwrapper({'ipfs_api':'/ip4/127.0.0.1/tcp/5001'})
