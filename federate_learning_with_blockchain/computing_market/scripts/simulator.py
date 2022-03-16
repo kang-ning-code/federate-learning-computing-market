@@ -24,7 +24,7 @@ simulator_setting[
 simulator_setting['log_dir'] = os.path.join(simulator_setting['report_dir'], 'logs')
 simulator_setting['results_dir'] = os.path.join(simulator_setting['report_dir'], 'results')
 
-attacker_prop = 0.2
+n_attacker = 10
 aggreagate_method = 'fed_vote_avg'
 # aggreagate_method = 'sniper'
 class ClusterSimulator(object):
@@ -33,8 +33,9 @@ class ClusterSimulator(object):
         log_dir = simulator_setting['log_dir']
         init_logging(log_dir, log_level=logging.DEBUG)
         dataset_dir = simulator_setting['dataset_dir']
+        self.attackers = np.arange(n_attacker)
         client_train_dataset, test_x_tensor, test_y_tensor = u.split_mnist_dataset(
-            True, dataset_dir, len(accounts),attacker_prop=attacker_prop)
+            True, dataset_dir, len(accounts),n_attacker=n_attacker)
         self.accounts = accounts
 
         self.test_dl = DataLoader(TensorDataset(
@@ -49,7 +50,8 @@ class ClusterSimulator(object):
 
         self.client_setting = copy.deepcopy(deploy_setting)
         self.n_clients = len(self.accounts)
-        self.n_participators = deploy_setting['n_participator']
+        self.n_attacker = n_attacker
+        self.n_participator = deploy_setting['n_participator']
         self.n_vote = deploy_setting['n_vote']
         self.model_name = deploy_setting['model_name']
         self.clients = []
@@ -68,7 +70,6 @@ class ClusterSimulator(object):
             new_client = MockClient(custume_setting)
             del custume_setting
             self.clients.append(new_client)
-            l.info(f"build client {id} success")
         l.info(f"build {len(self.accounts)} clients finish")
 
     def flesh_clients_model(self, client_ids=None):
@@ -132,7 +133,7 @@ class ClusterSimulator(object):
         for client in selected_clients:
             client.vote()
 
-    def simulate_sequential(self, n=1):
+    def simulate_sequential(self, n=1,fixed_attacker=-1):
         # loop n times
         # the first round should upload init model,specific handle
         if self.round == 0:
@@ -140,19 +141,29 @@ class ClusterSimulator(object):
             self.clients[0].init_model()
             # evalute init model loss
             global_acc,global_loss = self.evaluate_global_model()
-            round_result = [self.round, global_acc,global_loss] + [0 for _ in range(self.n_participators)]
+            round_result = [self.round, global_acc,global_loss] + [0 for _ in range(self.n_participator)]
             self.train_result.append(round_result)
             self.round += 1
             n -= 1
+        np.random.seed((24 * self.round) % 125)
+        
         for r in range(n):
+            client_ids = None
+            # number of attacker in participators is fixed
+            if not fixed_attacker == -1:
+                n_normal = self.n_clients - self.n_attacker
+                order_attacker = np.random.permutation(self.n_attacker)[:fixed_attacker]
+                order_normal = (np.random.permutation(n_normal) + n_attacker)[:self.n_participator-fixed_attacker]
+                client_ids = np.hstack([order_attacker,order_normal]) 
+            # random choice
+            else:
+                order = np.random.permutation(len(self.clients))
+                client_ids = order[0:self.n_participator]
             l.info(f'--------{self.round}--------')
-            np.random.seed((24 * self.round) % 125)
-            order = np.random.permutation(len(self.clients))
-            client_ids = order[0:self.n_participators]
             l.info(f'select clients:{client_ids}')
             # participators flesh local model with global model
             self.flesh_clients_model(client_ids)
-            # self.clients_local_evaluate(client_ids)
+            self.clients_local_evaluate(client_ids)
             # participators start local training
             self.clients_local_train(client_ids)
             # evaluate local  models
@@ -167,7 +178,7 @@ class ClusterSimulator(object):
 
     def save_result(self):
         df = pd.DataFrame(self.train_result,
-                          columns=['round', 'global_acc','global_loss'] + [f'local_acc{i}' for i in range(self.n_participators)],
+                          columns=['round', 'global_acc','global_loss'] + [f'local_acc{i}' for i in range(self.n_participator)],
                           dtype=float
                           )
         csv_name = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime(time.time())) + \

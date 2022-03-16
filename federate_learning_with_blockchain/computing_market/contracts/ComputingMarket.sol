@@ -99,7 +99,7 @@ contract ComputingMarket {
             snapshot.participators.push(msg.sender);    
         }
         emit UploadLocalUpdate(msg.sender, curVersion);
-        snapshot.infos[msg.sender].updateInfo = ModelUpdate(msg.sender,_trainingSize,curVersion,_updateModelHash,1);
+        snapshot.infos[msg.sender].updateInfo = ModelUpdate(msg.sender,_trainingSize,curVersion,_updateModelHash,0);
        // training info collect finished
         if(snapshot.participators.length == setting.nParticipator || curVersion == 0){
             snapshot.locked = true;

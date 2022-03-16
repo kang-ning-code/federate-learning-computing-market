@@ -7,9 +7,9 @@ deploy_setting = {
     "batch_size": 10,
     "learning_rate": "0.01",
     "epochs": 3,
-    "n_participator": 5,
+    "n_participator": 10,
     "model_name":"mnist_cnn",
-    "n_vote":3,
+    "n_vote":6,
 }
 
 
