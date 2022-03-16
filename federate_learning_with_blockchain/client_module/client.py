@@ -38,6 +38,7 @@ class MockClient(object):
 
     def flesh_global_model(self):
         bytes_model = self.get_bytes_global_model()
+        l.debug(f'client {self.id} flesh_global_model, abstract is {self.trainer.get_model_abstract()}')
         self.trainer.load_bytes_model(bytes_model)
 
     def local_train(self):

@@ -5,6 +5,10 @@ import os
 import numpy as np
 import torch
 from typing import Dict, Tuple, Sequence
+import numpy as np
+import torchvision
+from torch.utils.data import DataLoader
+from torchvision.transforms import transforms
 
 def find_max_clique(graph)->Tuple[list,int]:
     '''
@@ -54,6 +58,33 @@ def hex2bytes(hex_str):
     '''
     return bytes.fromhex(str(hex_str)[2:])
 
+def build_MNIST_dataset(data_dir = './data'):
+    batch_size = 10
+    trainset = torchvision.datasets.MNIST(data_dir,train=True,download=True,transform=transforms.ToTensor())
+    testset = torchvision.datasets.MNIST(data_dir,train=False,download=True,transform=transforms.ToTensor())
+    train_x = trainset.data.numpy()
+    train_y = trainset.targets.numpy()
+    test_x = testset.data.numpy()
+    test_y = testset.targets.numpy()
+
+    train_x = train_x.reshape(train_x.shape[0],-1)
+    test_x = test_x.reshape(test_x.shape[0],-1)
+    train_x = train_x.astype(np.float32)
+    test_x = test_x.astype(np.float32)
+    train_x = np.multiply(train_x,1.0/255.0)
+    test_x = np.multiply(test_x,1.0/255.0)
+
+    order = np.arange(train_x.shape[0])
+    np.random.shuffle(order)
+    train_x = train_x[order]
+    train_y = train_y[order]
+
+    train_y = dense_to_one_hot(train_y)
+    test_y = dense_to_one_hot(test_y)
+    
+    l.info(f"build MNIST dataset train_x{train_x.shape} train_y{train_y.shape} test_x{test_x.shape} test_y{test_y.shape}")
+    return train_x,train_y,test_x,test_y
+
 def build_mnist_dataset(is_iid,dataset_dir):
     '''
     split mnnist_dataset into n_client piece
@@ -93,8 +124,9 @@ def build_mnist_dataset(is_iid,dataset_dir):
         train_y = train_labels[order]
     return train_x,train_y,test_x,test_y
     
-def split_mnist_dataset(is_iid,dataset_dir,n_clients,attacker_prop = 0.0):
-    train_x,train_y,test_x,test_y = build_mnist_dataset(is_iid,dataset_dir)
+def split_mnist_dataset(is_iid,dataset_dir,n_clients,n_attacker):
+    # train_x,train_y,test_x,test_y = build_mnist_dataset(is_iid,dataset_dir)
+    train_x,train_y,test_x,test_y = build_MNIST_dataset(dataset_dir)
     # every client get 2 shard
     # 60000 // 100 // 2 = 600 // 2 = 300
     train_x_size = train_x.shape[0]
@@ -105,9 +137,8 @@ def split_mnist_dataset(is_iid,dataset_dir,n_clients,attacker_prop = 0.0):
     l.info(f"train_x_size:{train_x_size},shard_size:{shard_size},shard_ids.len:{len(shard_ids)}")
     split_dataset_tensor = {}
     
-    n_attacker = min(int(attacker_prop * n_clients),n_clients-1)
     arr = np.arange(n_clients)
-    attackers = np.random.choice(arr[1:],size = n_attacker)
+    attackers = np.arange(n_attacker)
     l.info(f'exist attacker:{attackers}')
     for i in range(n_clients):
         first_id = shard_ids[i * 2]

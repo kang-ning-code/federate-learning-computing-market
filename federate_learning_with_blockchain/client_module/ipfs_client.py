@@ -25,7 +25,7 @@ class IPFSwrapper:
     def close(self)->None:
         self.client.close()
 
-local_cache = Cache(maxsize=100)
+local_cache = Cache(maxsize=20)
 class MockIPFSWrapper:
 
     def __init__(self,setting)->None:
@@ -34,18 +34,18 @@ class MockIPFSWrapper:
     def get_hash(self,bytes_input):
         hash = hashlib.md5()
         hash.update(bytes_input)
-        hash.update(bytes(str(time.time()),encoding="utf-8"))
+        # hash.update(bytes(str(time.time()),encoding="utf-8"))
         hex_str = hash.hexdigest()
         return hex_str
 
     def add_bytes(self,data):
         hex_str = self.get_hash(data)
         local_cache.add(hex_str,data)
-        l.debug(f'upload file ,get hex_Str {hex_str}')
+        # l.debug(f'upload file ,get hex_str {hex_str}')
         return hex_str
 
     def get_bytes(self,hex_str):
-        l.debug(f'get bytes with hex_str {hex_str}')
+        # l.debug(f'get bytes with hex_str {hex_str}')
         data = local_cache.get(hex_str)
         assert not data is None
         

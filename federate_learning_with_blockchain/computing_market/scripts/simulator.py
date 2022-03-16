@@ -20,7 +20,7 @@ simulator_setting = copy.deepcopy(deploy_setting)
 simulator_setting[
     'report_dir'] = r'D:\cs\Code\VisualStudioCode\federate-learning-computing-market\federate_learning_with_blockchain\client_module\reports'
 simulator_setting[
-    'dataset_dir'] = r'D:\cs\Code\VisualStudioCode\federate-learning-computing-market\federate_learning_with_blockchain\client_module\data\MNIST'
+    'dataset_dir'] = r'D:\cs\Code\VisualStudioCode\federate-learning-computing-market\federate_learning_with_blockchain\client_module\data'
 simulator_setting['log_dir'] = os.path.join(simulator_setting['report_dir'], 'logs')
 simulator_setting['results_dir'] = os.path.join(simulator_setting['report_dir'], 'results')
 

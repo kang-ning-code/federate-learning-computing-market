@@ -1,4 +1,5 @@
-reports/*
+reports/logs/*
+reports/reports/*
 dataset/*
 __pycache__
 build/

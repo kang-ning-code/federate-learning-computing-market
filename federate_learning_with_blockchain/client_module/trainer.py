@@ -51,6 +51,7 @@ class Trainer(object):
         # init dataloader
         self.train_dl = DataLoader(self.train_ds,batch_size= self.batch_size,shuffle=True)
         self.test_dl = DataLoader(self.test_ds,batch_size = self.batch_size,shuffle=True)
+        
     def load_bytes_model(self,bytes_model:bytes):
         assert isinstance(bytes_model,bytes)
         model_param_dict = pickle.loads(bytes_model)
@@ -153,9 +154,11 @@ class Trainer(object):
         all_data_size = 0
         for model_info in model_infos:
             all_data_size  = all_data_size + model_info.train_size
+        log_infos = ''
         for model_info in model_infos:
             fraction = model_info.train_size / all_data_size
-            l.debug(f'fraction of uploader {model_info.uploader} is {fraction},data_size is {model_info.train_size}')
+            log_infos = log_infos + f"<fraction({fraction}) data_size({model_info.train_size})>"
+            # l.debug(f'fraction of uploader {model_info.uploader} is {fraction},data_size is {model_info.train_size}')
             if average_params is None:
                 average_params = {}
                 for k,v in  model_info.model_dict.items():
@@ -163,6 +166,7 @@ class Trainer(object):
             else:
                 for k in average_params:
                     average_params[k] = average_params[k] + model_info.model_dict[k] * fraction
+        l.debug(log_infos)
         return average_params
 
     def aggregate_fed_vote_avg(self,model_infos:List[ModelInfo])->dict:
@@ -172,9 +176,11 @@ class Trainer(object):
             return 1 / (1 + math.exp(-z))
         for model_info in model_infos:
             denominator += model_info.train_size * sigmoid(model_info.poll -self.n_vote)
+        log_infos = ''
         for model_info in model_infos:
             fraction = model_info.train_size * sigmoid(model_info.poll -self.n_vote) / denominator
-            l.debug(f'fraction of uploader {model_info.uploader} is {fraction},data_size is {model_info.train_size},poll is {model_info.poll}')
+            log_infos = log_infos + f"<fraction({fraction}) data_size({model_info.train_size}) poll({model_info.poll})>"
+            # l.debug(f'fraction of uploader {model_info.uploader} is {fraction},data_size is {model_info.train_size},poll is {model_info.poll}')
             if average_params is None:
                 average_params = {}
                 for k,v in  model_info.model_dict.items():
@@ -182,6 +188,7 @@ class Trainer(object):
             else:
                 for k in average_params:
                     average_params[k] = average_params[k] + model_info.model_dict[k] * fraction
+        l.debug(log_infos)
         return average_params
 
     # deprecated
