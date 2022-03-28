@@ -9,7 +9,7 @@ brownie console
 from scripts.simulator import ClusterSimulator
 cs = ClusterSimulator()
 cm = ComputingMarket[0]
-
+cs.simulate_sequential(35)
 # access specific client in cluster
 c0 = cs.clients[0]
 c0i = c0.invoker
@@ -21,7 +21,7 @@ c1t = c1.trainer
 c1ip = c1.ipfs
 
 # start simulate
-cs.simulate_sequential(10)
+cs.simulate_sequential(35,3)
 
 # save the result
 cs.save_result()

@@ -23,23 +23,43 @@ simulator_setting[
     'dataset_dir'] = r'D:\cs\Code\VisualStudioCode\federate-learning-computing-market\federate_learning_with_blockchain\client_module\data'
 simulator_setting['log_dir'] = os.path.join(simulator_setting['report_dir'], 'logs')
 simulator_setting['results_dir'] = os.path.join(simulator_setting['report_dir'], 'results')
-
-n_attacker = 10
-aggreagate_method = 'fed_vote_avg'
+# simulator_setting['dataset'] = "CIFAR10"
+simulator_setting['dataset'] = "EMNIST"
+# simulator_setting['dataset'] = "MNIST"
+n_attacker = 4
+aggreagate_method = 'fed_avg'
+# aggreagate_method = 'fed_avg'
 # aggreagate_method = 'sniper'
+
 class ClusterSimulator(object):
 
     def __init__(self):
         log_dir = simulator_setting['log_dir']
         init_logging(log_dir, log_level=logging.DEBUG)
+        l.info('aggreate_method = {am}, n_attacker = {na}, dataset = {ds}, model_name = {mn}, epochs= {ep}, n_vote= {nv}'.format(
+            am = aggreagate_method,
+            na = n_attacker,
+            ds = simulator_setting['dataset'],
+            mn = simulator_setting['model_name'],
+            ep = simulator_setting['epochs'],
+            nv = simulator_setting['n_vote'],
+        ))
         dataset_dir = simulator_setting['dataset_dir']
         self.attackers = np.arange(n_attacker)
-        client_train_dataset, test_x_tensor, test_y_tensor = u.split_mnist_dataset(
-            True, dataset_dir, len(accounts),n_attacker=n_attacker)
         self.accounts = accounts
+        self.n_client = len(self.accounts)
+        self.n_attacker = n_attacker
+        self.n_participator = deploy_setting['n_participator']
+        self.n_vote = deploy_setting['n_vote']
+        self.model_name = deploy_setting['model_name']
+        client_train_dataset,test_x_tensor,test_y_tensor = u.build_dataset(
+            dataset_name=simulator_setting['dataset'],n_client=self.n_client,
+            n_attacker=self.n_attacker,data_dir=simulator_setting['dataset_dir'])
+        
 
         self.test_dl = DataLoader(TensorDataset(
             test_x_tensor, test_y_tensor), batch_size=5, shuffle=False)
+
         l.info(f"load test_dl(type DataLoader) finish...")
 
         self.contract = deploy_contract()
@@ -49,11 +69,6 @@ class ClusterSimulator(object):
         self.train_result = []
 
         self.client_setting = copy.deepcopy(deploy_setting)
-        self.n_clients = len(self.accounts)
-        self.n_attacker = n_attacker
-        self.n_participator = deploy_setting['n_participator']
-        self.n_vote = deploy_setting['n_vote']
-        self.model_name = deploy_setting['model_name']
         self.clients = []
         for id in range(len(self.accounts)):
             custume_setting = copy.deepcopy(self.client_setting)
@@ -92,12 +107,8 @@ class ClusterSimulator(object):
             for c_id in client_ids:
                 selected_clients.append(self.clients[c_id])
         for client in selected_clients:
-            # l.debug(
-            #     f"client {client.id} before train,model hash is {client.cur_model_hash()}")
             client.local_train()
             client.upload_model_update()
-            # l.debug(
-            #     f"client {client.id} after train,model hash is {client.cur_model_hash()}")
 
     def clients_local_evaluate(self, client_ids=None) -> list:
         l.info('[clients_local_evaluate]')
@@ -111,15 +122,16 @@ class ClusterSimulator(object):
         for client in selected_clients:
             c_acc,_ = client.evaluate(self.test_dl)
             local_acc.append(c_acc)
-            l.info(
-                f"client {client.id} local model\'s accuracy is {c_acc}")
+            l.info("client %d local accuracy is %.4f",client.id,c_acc)
+            l.debug(f"model view {client.model_view()}")
         return local_acc
 
     def evaluate_global_model(self) -> Tuple[float,float]:
         l.info('[evaluate_global_model]')
         self.clients[0].flesh_global_model()
         acc,loss = self.clients[0].evaluate(self.test_dl)
-        l.info(f"round {self.round},accuracy {acc},loss {loss}")
+        l.info("round %d,global accuracy %.4f,global loss %.4f",self.round,acc,loss)
+        l.debug(f"model view {self.clients[0].model_view()}")
         return acc,loss
 
     def client_vote(self,client_ids= None):
@@ -151,7 +163,7 @@ class ClusterSimulator(object):
             client_ids = None
             # number of attacker in participators is fixed
             if not fixed_attacker == -1:
-                n_normal = self.n_clients - self.n_attacker
+                n_normal = self.n_client - self.n_attacker
                 order_attacker = np.random.permutation(self.n_attacker)[:fixed_attacker]
                 order_normal = (np.random.permutation(n_normal) + n_attacker)[:self.n_participator-fixed_attacker]
                 client_ids = np.hstack([order_attacker,order_normal]) 
@@ -163,7 +175,7 @@ class ClusterSimulator(object):
             l.info(f'select clients:{client_ids}')
             # participators flesh local model with global model
             self.flesh_clients_model(client_ids)
-            self.clients_local_evaluate(client_ids)
+            # self.clients_local_evaluate(client_ids)
             # participators start local training
             self.clients_local_train(client_ids)
             # evaluate local  models

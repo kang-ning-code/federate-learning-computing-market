@@ -38,18 +38,22 @@ class MockClient(object):
 
     def flesh_global_model(self):
         bytes_model = self.get_bytes_global_model()
-        l.debug(f'client {self.id} flesh_global_model, abstract is {self.trainer.get_model_abstract()}')
+        l.debug(f'client {self.id} flesh_global_model, view is {self.model_view()}')
         self.trainer.load_bytes_model(bytes_model)
 
     def local_train(self):
         l.info(f"client {self.id} start local training...")
+        l.debug(f'before view is {self.model_view()}')
         self.trainer.local_training()
         l.info(f"client {self.id} finish local training...")
-
+        l.debug(f'after view is {self.model_view()}')
     def cur_model_hash(self):
         bytes_model = self.trainer.get_bytes_model()
         model_hash = self.ipfs.add_bytes(bytes_model)
         return model_hash
+
+    def model_view(self):
+        return self.trainer.model_view()
 
     def upload_model_update(self):
         data_size = self.trainer.get_data_size()
@@ -57,25 +61,6 @@ class MockClient(object):
         bytes_model_hash = self.ipfs.add_bytes(bytes_model)
         self.invoker.upload_model_update(data_size, bytes_model_hash)
         l.info(f"client {self.id} upload model update,hash {bytes_model_hash}")
-
-    # def aggregate_and_upload(self):
-    #     update_info_list = self.invoker.get_model_updates()
-    #     model_infos = []
-    #     # get all update model from ipfs  with given model_hash
-    #     for update in update_info_list:
-    #         uploader = update['uploader']
-    #         train_size = update['train_size']
-    #         version = update['version']
-    #         bytes_model_hash = update['bytes_model_hash']
-    #         bytes_model = self.ipfs.get_bytes(bytes_model_hash)
-    #         model_info = ModelInfo(uploader, train_size, version, bytes_model,bytes_model_hash=bytes_model_hash)
-    #         model_infos.append(model_info)
-    #     bytes_aggregate_model = self.trainer.aggregate(model_infos)
-    #     self.trainer.load_bytes_model(bytes_aggregate_model)
-    #     l.info(f"client {self.id} aggregate model finish")
-    #     aggreagate_model_hash = self.ipfs.add_bytes(bytes_aggregate_model)
-    #     self.invoker.upload_aggregation_hash(aggreagate_model_hash)
-    #     l.info(f"client {self.id} aggregate model and upload")
 
     def evaluate(self, test_dl) -> Tuple[float,float]:
         accuracy,loss,_ = self.trainer.evaluate(test_dl)

@@ -34,7 +34,6 @@ class Trainer(object):
         self.model_name = train_setting['model_name']
         self.learning_rate = float(train_setting['learning_rate'])
         self.train_ds = train_setting['dataset']
-        self.test_ds = train_setting['dataset']
         self.aggregate_method = train_setting['aggreagate_method']
         assert isinstance(self.train_ds,TensorDataset)
         # init training model
@@ -48,9 +47,10 @@ class Trainer(object):
         self.model = self.model.to(self.dev)
         self.opti = model.get_opti(self.model,self.learning_rate)
         self.loss_fn = model.get_loss_fn()
+        l.debug(f"id: opti({id(self.opti)}) model({id(self.model)}) loss({id(self.loss_fn)})")
         # init dataloader
         self.train_dl = DataLoader(self.train_ds,batch_size= self.batch_size,shuffle=True)
-        self.test_dl = DataLoader(self.test_ds,batch_size = self.batch_size,shuffle=True)
+        self.test_dl  = self.train_dl
         
     def load_bytes_model(self,bytes_model:bytes):
         assert isinstance(bytes_model,bytes)
@@ -72,14 +72,18 @@ class Trainer(object):
         m.update(self.get_bytes_model())
         return m.hexdigest()
 
+    def model_view(self):
+        sd =  self.model.state_dict()
+        return torch.flatten(sd[list(sd.keys())[0]])[:4]
+
     def _load_model(self,model_params_dict:dict):
-        self.model.load_state_dict(model_params_dict,strict=True)
+        d = copy.deepcopy(model_params_dict)
+        self.model.load_state_dict(d,strict=True)
 
     def local_training(self):
         for epoch in range(self.epochs):
             for train_x, train_y in self.train_dl:
-                train_y = train_y.type(torch.LongTensor)
-                train_x, train_y = train_x.to(self.dev), train_y.to(self.dev)
+                train_x, train_y = train_x.to(self.dev), train_y.to(self.dev).long()
                 self.opti.zero_grad()
                 pred_y = self.model(train_x)
                 loss = self.loss_fn(pred_y, train_y)
