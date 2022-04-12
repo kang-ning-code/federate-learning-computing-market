@@ -26,7 +26,11 @@ contract ComputingMarket {
         bool locked; // if locked is true ,then can't update updateInfos
         bool voteFinished; // if voteFinished is true, then current snapshot is finished,can't update again
     }
-    
+    struct TaskSetting{
+        string taskDescription; // the description of the federate learning task
+        string modelDescription; // the description of the model(e.g. model name,model struct)
+        string datasetDescription; // the description of the dataset(e.g. struct of the dataset)
+    }
     struct TrainSetting{
         uint batchSize; // local training batch size
         string learningRate; // local training learning rate (float)
@@ -34,6 +38,10 @@ contract ComputingMarket {
         uint nParticipator; // the number of client participate in one global model update
         string modelName; // the training model name
         uint nPoll; // the max number of votes for one participator
+    }
+    struct Setting{
+        TaskSetting task;
+        TrainSetting trian;
     }
     address public publisher;
     string public modelName;
@@ -48,7 +56,6 @@ contract ComputingMarket {
     event UploadLocalUpdate(address _uploader,uint _version);
     event NeedAggregation(uint _version);
     event NeedVote(uint _version);
-    // event GlobalModelUpdate(address _uploader,uint _version);
 
     constructor(string memory _modelName,TrainSetting memory _setting) {
         publisher = msg.sender;
@@ -66,6 +73,18 @@ contract ComputingMarket {
             }
         }
         return false;
+    }
+    
+    function initTask() public returns (bool){
+        
+        return true;
+    }
+    function initModel(string memory _initModelHash) public returns (bool){
+        require(curVersion == 0,"model has been inited");
+        uploadModelUpdate(0,_initModelHash);
+        address[] memory votes;
+        vote(votes);
+        return true;
     }
 
     // get all update models (local training) within specific version
@@ -112,13 +131,7 @@ contract ComputingMarket {
         return uploadModelUpdate(curVersion, _trainingSize, _updateModelHash);
     }
 
-    function initModel(string memory _initModelHash) public returns (bool){
-        require(curVersion == 0,"model has been inited");
-        uploadModelUpdate(0,_initModelHash);
-        address[] memory votes;
-        vote(votes);
-        return true;
-    }
+
 
     function vote(address[] memory _votes,uint _version) public returns (bool){
         require(_votes.length <= setting.nPoll,"too many voters");

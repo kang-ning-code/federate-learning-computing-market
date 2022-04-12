@@ -9,8 +9,8 @@ deploy_setting = {
     "epochs": 2,
     "n_participator": 5,
     # "model_name":"resnet18",
-    "model_name":"emnist_2nn",
-    # "model_name":"mnist_cnn",
+    # "model_name":"emnist_2nn",
+    "model_name":"mnist_2nn",
     "n_vote":3,
 }
 

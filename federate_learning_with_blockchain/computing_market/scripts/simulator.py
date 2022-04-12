@@ -24,11 +24,11 @@ simulator_setting[
 simulator_setting['log_dir'] = os.path.join(simulator_setting['report_dir'], 'logs')
 simulator_setting['results_dir'] = os.path.join(simulator_setting['report_dir'], 'results')
 # simulator_setting['dataset'] = "CIFAR10"
-simulator_setting['dataset'] = "EMNIST"
-# simulator_setting['dataset'] = "MNIST"
+# simulator_setting['dataset'] = "EMNIST"
+simulator_setting['dataset'] = "MNIST"
 n_attacker = 4
 aggreagate_method = 'fed_avg'
-# aggreagate_method = 'fed_avg'
+# aggreagate_method = 'fed_vote_avg'
 # aggreagate_method = 'sniper'
 
 class ClusterSimulator(object):
