@@ -8,28 +8,30 @@ import time
 from typing import Dict, Tuple, Sequence
 sys.path.append('.')
 sys.path.append('..')
-from brownie import accounts, ComputingMarket, network
+from brownie import accounts, ModelTrain, network
 from client_module.log import logger as l, init_logging
-from scripts.deploy import deploy_setting, deploy_contract
+from scripts.deploy import  deploy_contract,train_setting,task_setting
 import client_module.utils as u
 from client_module.client import MockClient
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 
-simulator_setting = copy.deepcopy(deploy_setting)
+simulator_setting = {}
+for k in train_setting.keys():
+    simulator_setting[k]=train_setting[k]
+for k in task_setting.keys():
+    simulator_setting[k]=task_setting[k]
 simulator_setting[
     'report_dir'] = r'D:\cs\Code\VisualStudioCode\federate-learning-computing-market\federate_learning_with_blockchain\client_module\reports'
 simulator_setting[
     'dataset_dir'] = r'D:\cs\Code\VisualStudioCode\federate-learning-computing-market\federate_learning_with_blockchain\client_module\data'
 simulator_setting['log_dir'] = os.path.join(simulator_setting['report_dir'], 'logs')
 simulator_setting['results_dir'] = os.path.join(simulator_setting['report_dir'], 'results')
-# simulator_setting['dataset'] = "CIFAR10"
-# simulator_setting['dataset'] = "EMNIST"
-simulator_setting['dataset'] = "MNIST"
+
+
 n_attacker = 4
 aggreagate_method = 'fed_avg'
 # aggreagate_method = 'fed_vote_avg'
-# aggreagate_method = 'sniper'
 
 class ClusterSimulator(object):
 
@@ -39,8 +41,8 @@ class ClusterSimulator(object):
         l.info('aggreate_method = {am}, n_attacker = {na}, dataset = {ds}, model_name = {mn}, epochs= {ep}, n_vote= {nv}'.format(
             am = aggreagate_method,
             na = n_attacker,
-            ds = simulator_setting['dataset'],
-            mn = simulator_setting['model_name'],
+            ds = simulator_setting['dataset_description'],
+            mn = simulator_setting['model_description'],
             ep = simulator_setting['epochs'],
             nv = simulator_setting['n_vote'],
         ))
@@ -49,11 +51,11 @@ class ClusterSimulator(object):
         self.accounts = accounts
         self.n_client = len(self.accounts)
         self.n_attacker = n_attacker
-        self.n_participator = deploy_setting['n_participator']
-        self.n_vote = deploy_setting['n_vote']
-        self.model_name = deploy_setting['model_name']
+        self.n_participator = train_setting['n_participator']
+        self.n_vote = train_setting['n_vote']
+        self.model_name = task_setting['model_description']
         client_train_dataset,test_x_tensor,test_y_tensor = u.build_dataset(
-            dataset_name=simulator_setting['dataset'],n_client=self.n_client,
+            dataset_name=task_setting['dataset_description'],n_client=self.n_client,
             n_attacker=self.n_attacker,data_dir=simulator_setting['dataset_dir'])
         
 
@@ -68,7 +70,7 @@ class ClusterSimulator(object):
         self.round = 0
         self.train_result = []
 
-        self.client_setting = copy.deepcopy(deploy_setting)
+        self.client_setting = copy.deepcopy(simulator_setting)
         self.clients = []
         for id in range(len(self.accounts)):
             custume_setting = copy.deepcopy(self.client_setting)
@@ -194,10 +196,10 @@ class ClusterSimulator(object):
                           dtype=float
                           )
         csv_name = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime(time.time())) + \
-                   '@npart{}_lr{}_bs{}_ep{}_{}_{}.csv'.format(deploy_setting['n_participator'],
-                                                    deploy_setting['learning_rate'],
-                                                    deploy_setting['batch_size'],
-                                                    deploy_setting['epochs'],
+                   '@npart{}_lr{}_bs{}_ep{}_{}_{}.csv'.format(train_setting['n_participator'],
+                                                    train_setting['learning_rate'],
+                                                    train_setting['batch_size'],
+                                                    train_setting['epochs'],
                                                     self.model_name,
                                                     aggreagate_method)
         csv_path = os.path.join(simulator_setting['results_dir'],

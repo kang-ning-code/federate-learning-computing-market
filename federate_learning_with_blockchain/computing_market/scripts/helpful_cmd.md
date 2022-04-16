@@ -8,7 +8,6 @@ brownie console
 # import ClusterSimualtor
 from scripts.simulator import ClusterSimulator
 cs = ClusterSimulator()
-cm = ComputingMarket[0]
 cs.simulate_sequential(35)
 # access specific client in cluster
 c0 = cs.clients[0]

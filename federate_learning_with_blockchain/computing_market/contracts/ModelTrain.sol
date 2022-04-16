@@ -1,7 +1,7 @@
 pragma solidity ^0.8.11;
 
 // SPDX-License-Identifier: MIT
-contract ComputingMarket {
+contract ModelTrain {
      
     // model's update uploader by local trainer (local update model)
     struct ModelUpdate{
@@ -11,16 +11,16 @@ contract ComputingMarket {
         string modelHash; // the model's ipfs file's hash 
         uint poll; // the number of votes this model get
     }
-    struct ParticipatorInfo{
-        address participator;
+    struct TrainInfo{
+        address trainer;
         bool hasVoted;
         address[] votes;
         ModelUpdate updateInfo;
     }
     // snapshot at specific epoch 
     struct Snapshot{
-        address[] participators;
-        mapping(address => ParticipatorInfo)infos;
+        address[] trainers;
+        mapping(address => TrainInfo)infos;
         uint version;
         uint hasVoted;
         bool locked; // if locked is true ,then can't update updateInfos
@@ -36,18 +36,17 @@ contract ComputingMarket {
         string learningRate; // local training learning rate (float)
         uint epochs; // local training epoch step
         uint nParticipator; // the number of client participate in one global model update
-        string modelName; // the training model name
-        uint nPoll; // the max number of votes for one participator
+        uint nPoll; // the max number of votes for one trainer
     }
     struct Setting{
         TaskSetting task;
         TrainSetting trian;
     }
     address public publisher;
-    string public modelName;
     uint public curVersion;
     // global setting of training
-    TrainSetting public setting;
+    TrainSetting public train;
+    TaskSetting public task;
     // version => snapshot with given version
     mapping(uint => Snapshot) snapshots;
     // use to record the contribution
@@ -57,28 +56,35 @@ contract ComputingMarket {
     event NeedAggregation(uint _version);
     event NeedVote(uint _version);
 
-    constructor(string memory _modelName,TrainSetting memory _setting) {
+    constructor(TrainSetting memory _train,TaskSetting memory _task) {
         publisher = msg.sender;
-        curVersion = 0;
-        modelName = _modelName;
-        setting = _setting;
+        curVersion = 0; 
+        train = _train;
+        task = _task;
     }
 
-    // check wheater the lastest version exist participator
-    function exist(address participator) internal view returns (bool){
+    // check wheater the lastest version exist trainer
+    function exist(address trainer) internal view returns (bool){
         Snapshot storage snapshot = snapshots[curVersion];
-        for(uint i=0;i<snapshot.participators.length;i++){
-            if(participator == snapshot.participators[i]){
+        for(uint i=0;i<snapshot.trainers.length;i++){
+            if(trainer == snapshot.trainers[i]){
                 return true;
             }
         }
         return false;
     }
     
-    function initTask() public returns (bool){
-        
+    function init(
+        TrainSetting memory  _train,
+        TaskSetting memory _task,
+        string memory _initModelHash) 
+        public returns (bool){
+        train = _train;
+        task = _task;
+        initModel(_initModelHash);
         return true;
     }
+
     function initModel(string memory _initModelHash) public returns (bool){
         require(curVersion == 0,"model has been inited");
         uploadModelUpdate(0,_initModelHash);
@@ -91,10 +97,10 @@ contract ComputingMarket {
     function getModelUpdates(uint _version) view public returns (ModelUpdate[] memory) {
         require(_version <= curVersion,"invalid version");
         Snapshot storage snapshot = snapshots[_version];
-        ModelUpdate[] memory updates = new ModelUpdate[](snapshot.participators.length);
-        for(uint i=0;i< snapshot.participators.length; i++){
-            address participator = snapshot.participators[i];
-            updates[i] = snapshot.infos[participator].updateInfo;
+        ModelUpdate[] memory updates = new ModelUpdate[](snapshot.trainers.length);
+        for(uint i=0;i< snapshot.trainers.length; i++){
+            address trainer = snapshot.trainers[i];
+            updates[i] = snapshot.infos[trainer].updateInfo;
         }
         return updates;
     }
@@ -112,15 +118,15 @@ contract ComputingMarket {
     function uploadModelUpdate(uint _version,uint _trainingSize,string memory _updateModelHash) public returns (bool){
         require(_version == curVersion,"unexpected version");
         Snapshot storage snapshot = snapshots[curVersion];
-        // new participator of current version
+        // new trainer of current version
         require(!snapshot.locked,"current version's local updates collected finished");
         if (!exist(msg.sender)){
-            snapshot.participators.push(msg.sender);    
+            snapshot.trainers.push(msg.sender);    
         }
         emit UploadLocalUpdate(msg.sender, curVersion);
         snapshot.infos[msg.sender].updateInfo = ModelUpdate(msg.sender,_trainingSize,curVersion,_updateModelHash,0);
        // training info collect finished
-        if(snapshot.participators.length == setting.nParticipator || curVersion == 0){
+        if(snapshot.trainers.length == train.nParticipator || curVersion == 0){
             snapshot.locked = true;
             emit NeedVote(curVersion);
         }
@@ -134,20 +140,20 @@ contract ComputingMarket {
 
 
     function vote(address[] memory _votes,uint _version) public returns (bool){
-        require(_votes.length <= setting.nPoll,"too many voters");
+        require(_votes.length <= train.nPoll,"too many voters");
         require(_version == curVersion,"unexpected version");
         Snapshot storage snapshot = snapshots[curVersion];
         require(snapshot.locked,"current version's local updates collected do not finished");
-        require(exist(msg.sender),"only participators can approval");
-        ParticipatorInfo storage info = snapshot.infos[msg.sender];
-        require(!info.hasVoted,"this participator has voted before");
+        require(exist(msg.sender),"only trainers can approval");
+        TrainInfo storage info = snapshot.infos[msg.sender];
+        require(!info.hasVoted,"this trainer has voted before");
         for(uint i=0;i<_votes.length;i++){
             require(exist(_votes[i]),"candicate do no exist");
         }
         //record the vote
         snapshot.infos[msg.sender].votes = _votes;
         snapshot.hasVoted ++ ;
-        if (snapshot.hasVoted == setting.nParticipator ||
+        if (snapshot.hasVoted == train.nParticipator ||
             snapshot.version == 0 // for the init model
             ){
             // current version's local updates collected finished , need to be aggregated
@@ -155,18 +161,18 @@ contract ComputingMarket {
             snapshot.voteFinished = true;
             // create snasphot for new version
             // update the poll for every update model info
-            for(uint i=0;i<snapshot.participators.length;i++){
-                address candidate = snapshot.participators[i];
+            for(uint i=0;i<snapshot.trainers.length;i++){
+                address candidate = snapshot.trainers[i];
                 for(uint j=0;j<snapshot.infos[candidate].votes.length;j++){
                     address candicate = snapshot.infos[candidate].votes[j];
                     snapshot.infos[candicate].updateInfo.poll++;
                 }
             }
             // update the contributions
-            for(uint i=0;i<snapshot.participators.length;i++){
-                address participator = snapshot.participators[i];
-                ModelUpdate storage information = snapshot.infos[participator].updateInfo;
-                contributions[participator] += (information.poll) * (information.trainSize);
+            for(uint i=0;i<snapshot.trainers.length;i++){
+                address trainer = snapshot.trainers[i];
+                ModelUpdate storage information = snapshot.infos[trainer].updateInfo;
+                contributions[trainer] += (information.poll) * (information.trainSize);
             }
             curVersion ++;
             snapshots[curVersion].version = curVersion;
